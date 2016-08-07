@@ -1,10 +1,16 @@
 {
   "name": "scrollscout",
   "version": "0.0.1",
-  "description": "",
+  "description": "Monitoring elements entering/leaving viewport",
+  "keywords": [
+    "scroll",
+    "observer",
+    "viewport"
+  ],
   "main": "./lib/scrollscout.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\"",
+    "watch:test": "npm test -- -w",
+    "test": "mocha test/observer.spec.js --compilers js:babel-register",
     "build": "webpack --mode=build && webpack --mode=dev",
     "dev": "webpack --progress --watch --mode=dev"
   },
@@ -13,7 +19,7 @@
     "url": "git+https://github.com/holstandersson/scrollscout.git"
   },
   "author": "Rasmus Holst Andersson",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/holstandersson/scrollscout/issues"
   },
@@ -23,6 +29,8 @@
     "babel-core": "^6.13.2",
     "babel-loader": "^6.2.4",
     "babel-preset-es2015": "^6.13.2",
+    "chai": "^3.5.0",
+    "mocha": "^3.0.1",
     "rimraf": "^2.5.4",
     "webpack": "^1.13.1",
     "yargs": "^4.8.1"
