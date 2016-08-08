@@ -8,7 +8,7 @@ describe('scrollscout observer', function () {
    describe('addListener', function() {
       it('should add a listener', () => {
          const obs = observer()
-         obs.addListener("A", null)
+         obs.addListener("A", ()=>{})
          expect(obs.getListeners().length).to.be.equal(1)
       })
    })
@@ -38,7 +38,25 @@ describe('scrollscout observer', function () {
       })
    })
 
-   describe('uniqueEventTypesSubscribed', function() {
+   describe('notifyListeners', function() {
+      it('should notify listeners', () => {
+         var obs = observer()
+         var value = 0
+         var idA = obs.addListener("A", function(){value = value + 1})
+         var idB = obs.addListener("A", function(){value = value + 1})
+         expect(value).to.be.equal(0)
+         obs.notifyListeners({type:'A'})
+         expect(value).to.be.equal(2)
+         idA()
+         obs.notifyListeners({type:'A'})
+         expect(value).to.be.equal(3)
+         idB()
+         obs.notifyListeners({type:'A'})
+         expect(value).to.be.equal(3)
+      })
+   })
+
+   describe('uniqueTypesSubscribed', function() {
       it('should return reduced list with only unique types', () => {
          var obs = observer()
          obs.addListener("A", function(){})
