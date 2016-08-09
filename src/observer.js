@@ -21,12 +21,20 @@ function observer() {
          return removeListenerFn()
       },
 
-      removeAllListeners: function () {
+      removeAllListeners(){
          listeners = []
       },
 
       getListeners() {
          return listeners
+      },
+
+      notifyListeners(type, evt) {
+         listeners.forEach(function (listener) {
+            if (listener.type === type) {
+               listener.callback(evt)
+            }
+         })
       },
 
       uniqueTypesSubscribed() {

@@ -3,7 +3,7 @@ import observer from '../src/observer'
 
 const expect = chai.expect
 
-describe('scrollscout observer', function () {
+describe('observer', function () {
 
    describe('addListener', function() {
       it('should add a listener', () => {
@@ -45,13 +45,13 @@ describe('scrollscout observer', function () {
          var idA = obs.addListener("A", function(){value = value + 1})
          var idB = obs.addListener("A", function(){value = value + 1})
          expect(value).to.be.equal(0)
-         obs.notifyListeners({type:'A'})
+         obs.notifyListeners('A', {})
          expect(value).to.be.equal(2)
          idA()
-         obs.notifyListeners({type:'A'})
+         obs.notifyListeners('A', {})
          expect(value).to.be.equal(3)
          idB()
-         obs.notifyListeners({type:'A'})
+         obs.notifyListeners('A', {})
          expect(value).to.be.equal(3)
       })
    })

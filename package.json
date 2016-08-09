@@ -10,7 +10,7 @@
   "main": "./lib/scrollscout.js",
   "scripts": {
     "watch:test": "npm test -- -w",
-    "test": "mocha test/observer.spec.js --compilers js:babel-register",
+    "test": "mocha test/*.spec.js --compilers js:babel-register",
     "build": "webpack --mode=build && webpack --mode=dev",
     "dev": "webpack --progress --watch --mode=dev"
   },

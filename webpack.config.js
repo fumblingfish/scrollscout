@@ -2,8 +2,9 @@ var webpack = require('webpack')
 var UglifyJsPlugin = webpack.optimize.UglifyJsPlugin
 var path = require('path')
 var env = require('yargs').argv.mode
+
 var build = env === 'build'
-console.log('build:', build);
+
 var libname = 'scrollscout'
 var ext = build ? '.min.js' : '.js'
 var plugins  = build ? [new UglifyJsPlugin({ minimize: true })] : []
