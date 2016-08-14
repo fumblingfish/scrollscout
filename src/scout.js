@@ -72,7 +72,7 @@ export default function scout(obs, opt, inpEnv) {
 
    const addPin = function (pinName) {
       //Todo: must be unique and must be string
-      const pin = new Pin(pinName, {addListener, pinChanges})
+      const pin = new Pin(pinName, _scoutInternal)
       pins[pinName] = pin
       return pin
    }
@@ -137,6 +137,12 @@ export default function scout(obs, opt, inpEnv) {
       if (typeof window !== 'undefined' && window.requestAnimationFrame) {
          window.requestAnimationFrame(update)
       }
+   }
+
+   var _scoutInternal = {
+      addListener,
+      removePin,
+      pinChanges
    }
 
    return {

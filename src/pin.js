@@ -7,6 +7,7 @@ export default function Pin(name, scoutRef) {
    this._direction = DESCEND
    this._axis = AXIS_Y
    this.subscribe = (fn) => scoutRef.addListener(this._name, fn)
+   this.destroy = () => scoutRef.removePin(this._name)
    this.pinChanges = scoutRef.pinChanges
    return this
 }

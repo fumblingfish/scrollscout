@@ -48,6 +48,21 @@ describe('pin', function () {
       })
    })
 
+
+   describe('destroy', function () {
+      it('should remove and delete pin from scout and unsubscribe listeners"', () => {
+         var value = 0
+         const sc = scrollscout.create()
+         const pin = sc.addPin('TO_BE_DESTROYED')
+         pin.subscribe(() => value++)
+         pin.destroy()
+         sc.notifyListeners('TO_BE_DESTROYED')
+         const pinRemoved = sc.getPin('TO_BE_DESTROYED')
+         expect(value).to.be.equal(0)
+         expect(pinRemoved).to.be.undefined
+      })
+   })
+
    describe('axis', function () {
       it('should apply axis "x" or "y"', () => {
          const pinA = new Pin('A', dummyScoutRef).axis()
