@@ -1,5 +1,7 @@
 import chai from 'chai'
 import scrollscout from '../src'
+import { someAxis, targetPointPair } from '../src/scout'
+import {AXIS_X, AXIS_Y} from '../src/constants'
 import Pin from '../src/pin'
 
 const expect = chai.expect
@@ -67,5 +69,56 @@ describe('scout', function () {
          expect(value).to.be.equal(1)
       })
    })
+
+   describe('someAxis', function() {
+      it('should check if there are any subscriptions to a given axis', () => {
+         var expectedX, expectedY
+         const sc = scrollscout.create()
+         const someAxisX = someAxis(AXIS_X)
+         const someAxisY = someAxis(AXIS_Y)
+         const pinA = sc.addPin('A').axis('x')
+         const pinB = sc.addPin('B').axis('y')
+         const pinC = sc.addPin('C').axis('y')
+
+         const pins = {'A': pinA, 'B': pinB, 'C': pinC,}
+         const listeners1 = [{type:'A'}, {type:'B'}, {type:'C'}]
+         expectedX = someAxisX(listeners1, pins)
+         expectedY = someAxisY(listeners1, pins)
+         expect(expectedX).to.be.equal(true)
+         expect(expectedY).to.be.equal(true)
+
+         const listeners2 = [{type:'B'}, {type:'C'}]
+         expectedX = someAxisX(listeners2, pins)
+         expectedY = someAxisY(listeners2, pins)
+         expect(expectedX).to.be.equal(false)
+         expect(expectedY).to.be.equal(true)
+
+         expectedX = someAxisX([], pins)
+         expectedY = someAxisY([], pins)
+         expect(expectedX).to.be.equal(false)
+         expect(expectedY).to.be.equal(false)
+
+      })
+   })
+
+   describe('targetPointPair', function() {
+      it('should return a pair of two targePoints [view, scene]', () => {
+         var stateA = [
+            [1, 4],
+            [2, 4]
+         ]
+         var actual, pin
+         const offsetZero = {_viewOffset:0, _sceneOffset:0}
+         pin = { _viewPosition:0.5, _scenePosition:0.5, ...offsetZero}
+         actual = targetPointPair(stateA[0], stateA[1], pin)
+         expect(actual).to.deep.equal([3, 4])
+
+         pin = { _viewPosition:0.5, _scenePosition:0, ...offsetZero}
+         actual = targetPointPair(stateA[0], stateA[1], pin)
+         expect(actual).to.deep.equal([3, 2])
+      })
+   })
+
+
 
 })

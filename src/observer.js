@@ -1,5 +1,3 @@
-
-
 function observer() {
    var listeners = [], GUI = 0
 
@@ -10,9 +8,9 @@ function observer() {
 
    return {
 
-      addListener(type, callback){
+      addListener(type, callback) {
          GUI += 1
-         var event = {id:GUI, type, callback}
+         var event = {id: GUI, type, callback}
          listeners.push(event)
          return () => removeEventListener(event)
       },
@@ -21,7 +19,7 @@ function observer() {
          return removeListenerFn()
       },
 
-      removeAllListeners(){
+      removeAllListeners() {
          listeners = []
       },
 
@@ -30,7 +28,7 @@ function observer() {
       },
 
       notifyListeners(type, evt) {
-         listeners.forEach(function (listener) {
+         listeners.forEach((listener) => {
             if (listener.type === type) {
                listener.callback(evt)
             }

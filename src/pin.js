@@ -1,23 +1,30 @@
 import PinBase from './pinbase'
-import { DESCEND } from './constants'
+import {DESCEND, ASCEND, AXIS_X, AXIS_Y} from './constants'
 
-export default function Pin(name, addListener){
-   this.name = name
-   this.direction = DESCEND
-   this.position = [0.5, 0.5]
-   this.offsets = [0, 0]
-   this.subscribe = (fn) => addListener(this.name, fn)
+
+export default function Pin(name, scoutRef) {
+   this._name = name
+   this._direction = DESCEND
+   this._axis = AXIS_Y
+   this.subscribe = (fn) => scoutRef.addListener(this._name, fn)
+   this.pinChanges = scoutRef.pinChanges
    return this
 }
 
 Pin.prototype = new PinBase()
 
-Pin.prototype.descend = function(){
-   this.direction = 'descend'
+Pin.prototype.descend = function () {
+   this._direction = DESCEND
    return this
 }
 
-Pin.prototype.ascend = function(){
-   this.direction = 'ascend'
+Pin.prototype.ascend = function () {
+   this._direction = ASCEND
+   return this
+}
+
+Pin.prototype.axis = function (axis) {
+   this._axis = ( axis === AXIS_X ) ? AXIS_X : AXIS_Y
+   this.pinChanges()
    return this
 }
