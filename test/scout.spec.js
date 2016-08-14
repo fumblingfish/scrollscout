@@ -16,6 +16,36 @@ describe('scout', function () {
       })
    })
 
+   describe('getPin', function() {
+      it('should return by name', () => {
+         const sc = scrollscout.create()
+         sc.addPin('A')
+         const pin = sc.getPin('A')
+         expect(pin._name).to.be.equal('A')
+      })
+   })
+
+   describe('removePin', function() {
+      it('should remove a Pin', () => {
+         const sc = scrollscout.create()
+         sc.addPin('A')
+         sc.addListener('A', () => {})
+         sc.addListener('A', () => {})
+         sc.addListener('B', () => {})
+         sc.removePin('A')
+         const allListeners = sc.getListeners()
+         expect(allListeners.length).to.be.equal(1)
+      })
+
+      it('should unsubscribe pin subscribers', () => {
+         const sc = scrollscout.create()
+         sc.addPin('A')
+         sc.removePin('A')
+         const pin = sc.getPin('A')
+         expect(pin).to.be.undefined
+      })
+   })
+
    describe('notifyListeners', function() {
       it('should notify subscribers', () => {
          var value = 0

@@ -1,9 +1,9 @@
 function observer() {
    var listeners = [], GUI = 0
 
-   const removeEventListener = (evt) => {
-      listeners = listeners.filter(listener => listener.id !== evt.id)
-      return evt
+   const removeEventListener = (id) => {
+      listeners = listeners.filter(listener => listener.id !== id)
+      return id
    }
 
    return {
@@ -12,11 +12,20 @@ function observer() {
          GUI += 1
          var event = {id: GUI, type, callback}
          listeners.push(event)
-         return () => removeEventListener(event)
+         const fn = function(){
+            removeEventListener(event.id)
+            return event
+         }
+         fn._id = event.id
+         return fn
       },
 
       removeListener(removeListenerFn) {
          return removeListenerFn()
+      },
+
+      removeListenerById(id) {
+         return removeEventListener(id)
       },
 
       removeAllListeners() {

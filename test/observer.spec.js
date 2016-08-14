@@ -28,6 +28,15 @@ describe('observer', function () {
       })
    })
 
+   describe('removeListenerById', function () {
+      it('should remove listener by id', () => {
+         const obs = observer()
+         const fn = obs.addListener("A", ()=> {})
+         obs.removeListenerById(fn._id)
+         expect(obs.getListeners().length).to.be.equal(0)
+      })
+   })
+
    describe('removeAllListeners', function () {
       it('should remove all listeners', () => {
          const obs = observer()

@@ -77,6 +77,15 @@ export default function scout(obs, opt, inpEnv) {
       return pin
    }
 
+   const removePin = function(pinName){
+      const listeners = observer.getListeners()
+      const listenersWithPinName = listeners.filter((lnr) => lnr.type === pinName)
+      listenersWithPinName.forEach((lsnr) => {
+         observer.removeListenerById(lsnr.id)
+      })
+      return delete pins[pinName]
+   }
+
    const initialize = function () {
       prevState = createInitialState(inputEnv, feedX, feedY)
       initialized = true
@@ -120,6 +129,10 @@ export default function scout(obs, opt, inpEnv) {
       prevState = nextState
    }
 
+   const getPin = function(pinName){
+      return pins[pinName]
+   }
+
    if (options.runInitialUpdate) {
       if (typeof window !== 'undefined' && window.requestAnimationFrame) {
          window.requestAnimationFrame(update)
@@ -133,6 +146,8 @@ export default function scout(obs, opt, inpEnv) {
       removeAllListeners,
       getListeners,
       notifyListeners,
-      update
+      update,
+      getPin,
+      removePin,
    }
 }
