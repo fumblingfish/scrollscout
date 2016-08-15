@@ -14,10 +14,17 @@ describe('scout', function () {
          const pin = sc.addPin('A')
          expect(pin).to.be.an.instanceof(Pin)
       })
+
+      it('should return false if pin already exists', () => {
+         const sc = scrollscout.create()
+         sc.addPin('A')
+         expect(sc.addPin('A')).to.be.equal(false)
+      })
+
    })
 
    describe('getPin', function() {
-      it('should return by name', () => {
+      it('should return pin by name', () => {
          const sc = scrollscout.create()
          sc.addPin('A')
          const pin = sc.getPin('A')
@@ -72,7 +79,7 @@ describe('scout', function () {
 
 
    describe('addListeners', function() {
-      it('should add listeners and return unsubscriber', () => {
+      it('should add listeners and return unsubscriber function', () => {
          var value = 0, unsub
          const sc = scrollscout.create()
          sc.addPin('A')
@@ -138,12 +145,28 @@ describe('scout', function () {
             [2, 4]
          ]
          var actual, pin
-         const offsetZero = {_viewOffset:0, _sceneOffset:0}
-         pin = { _viewPosition:0.5, _scenePosition:0.5, ...offsetZero}
+         pin = {
+            _view:{
+               position:0.5,
+               offset:0
+            },
+            _scene:{
+               position:0.5,
+               offset:0
+            }
+         }
          actual = targetPointPair(stateA[0], stateA[1], pin)
          expect(actual).to.deep.equal([3, 4])
-
-         pin = { _viewPosition:0.5, _scenePosition:0, ...offsetZero}
+         pin = {
+            _view:{
+               position:0.5,
+               offset:0
+            },
+            _scene:{
+               position:0,
+               offset:0
+            }
+         }
          actual = targetPointPair(stateA[0], stateA[1], pin)
          expect(actual).to.deep.equal([3, 2])
       })

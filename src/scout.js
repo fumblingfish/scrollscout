@@ -6,7 +6,7 @@ import {directionPredicates} from './predicates'
 
 
 const defaultOptions = {
-   runInitialUpdate: true,
+   runInitialUpdate: true
 }
 
 export const targetPoint = function (a1, a2, p, o) {
@@ -15,8 +15,8 @@ export const targetPoint = function (a1, a2, p, o) {
 
 export const targetPointPair = function (stateView, stateScene, pin) {
    return [
-      targetPoint(stateView[0], stateView[1], pin._viewPosition, pin._viewOffset),
-      targetPoint(stateScene[0], stateScene[1], pin._scenePosition, pin._sceneOffset)
+      targetPoint(stateView[0], stateView[1], pin._view.position, pin._view.offset),
+      targetPoint(stateScene[0], stateScene[1], pin._scene.position, pin._scene.offset)
    ]
 }
 
@@ -71,6 +71,8 @@ export default function scout(obs, opt, inpEnv) {
    }
 
    const addPin = function (pinName) {
+      if (pins[pinName]) return false
+
       //Todo: must be unique and must be string
       const pin = new Pin(pinName, _scoutInternal)
       pins[pinName] = pin
@@ -91,7 +93,7 @@ export default function scout(obs, opt, inpEnv) {
       initialized = true
    }
 
-   const refreshTerms = function () {
+   const refreshProps = function () {
       const listeners = observer.getListeners()
       const types = listeners.map((l) => l.type)
       const uniqueSubscribers = types.filter(unique(types))
@@ -104,14 +106,14 @@ export default function scout(obs, opt, inpEnv) {
    }
 
    const anonymousAxisPair = function (axis, viewState, sceneState) {
-      return axis === AXIS_Y ?
+      return (axis === AXIS_Y) ?
          [[viewState.y1, viewState.y2], [sceneState.y1, sceneState.y2]] :
          [[viewState.x1, viewState.x2], [sceneState.x1, sceneState.x2]]
    }
 
    const update = function (fn) {
       if (shouldRefreshBeforeUpdate) {
-         refreshTerms()
+         refreshProps()
       }
       if (!initialized) {
          initialize()

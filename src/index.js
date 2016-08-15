@@ -1,16 +1,16 @@
 import observer from './observer'
 import scout from './scout'
-import inputEnvDom from './inputEnvDom'
+import contextDom from './contextDom'
 
-var defaultInputEnv = Function.prototype
+var defaultContext = Function.prototype
 
 if (typeof window !== 'undefined') {
-   defaultInputEnv = inputEnvDom
+   defaultContext = contextDom
 }
 
-const create = function (scene, options, inputEnvPlugin) {
-   const inputEnv = inputEnvPlugin ? inputEnvPlugin : defaultInputEnv
-   return scout(observer(), options, inputEnv(scene))
+const create = function (scene, options, userContext) {
+   const context = userContext ? userContext : defaultContext
+   return scout(observer(), options, context(scene))
 }
 
 module.exports = {create}

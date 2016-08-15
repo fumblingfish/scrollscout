@@ -11,24 +11,23 @@ const dummyScoutRef = {
 
 const pinViewSceneTest = function (method) {
 
-   const positionMethod = `_${method}Position`
-   const offsetsMethod = `_${method}Offset`
+   const prop = `_${method}`
 
    const pinA = new Pin('A', dummyScoutRef)[method](0.5)
-   expect(pinA[positionMethod]).to.be.equal(0.5)
-   expect(pinA[offsetsMethod]).to.be.equal(0)
+   expect(pinA[prop].position).to.be.equal(0.5)
+   expect(pinA[prop].offset).to.be.equal(0)
 
-   const pinB = new Pin('A', dummyScoutRef)[method](1, 100)
-   expect(pinB[positionMethod]).to.be.equal(1)
-   expect(pinB[offsetsMethod]).to.be.equal(100)
+   const pinB = new Pin('B', dummyScoutRef)[method](1, 100)
+   expect(pinB[prop].position).to.be.equal(1)
+   expect(pinB[prop].offset).to.be.equal(100)
+   //
+   const pinC = new Pin('C', dummyScoutRef)[method](1, '100px')
+   expect(pinC[prop].position).to.be.equal(1)
+   expect(pinC[prop].offset).to.be.equal(100)
 
-   const pinC = new Pin('A', dummyScoutRef)[method](1, '100px')
-   expect(pinC[positionMethod]).to.be.equal(1)
-   expect(pinC[offsetsMethod]).to.be.equal(100)
-
-   const pinD = new Pin('A', dummyScoutRef)[method](undefined, undefined)
-   expect(pinD[positionMethod]).to.be.equal(0.5)
-   expect(pinD[offsetsMethod]).to.be.equal(0)
+   const pinD = new Pin('D', dummyScoutRef)[method](undefined, undefined)
+   expect(pinD[prop].position).to.be.equal(0.5)
+   expect(pinD[prop].offset).to.be.equal(0)
 }
 
 
@@ -36,6 +35,7 @@ describe('pin', function () {
 
    describe('subscribe', function () {
       it('should subscribe and unsubscribe', () => {
+
          var value = 0
          const sc = scrollscout.create()
          const pin = sc.addPin('A')
