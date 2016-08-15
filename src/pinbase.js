@@ -5,19 +5,30 @@ var parseOffset = function (offset) {
    return isString(offset) ? parseFloat(offset.match(/[-+0-9]+/g)) : parseFloat(offset)
 }
 
-export default function PinBase() {
-   this._viewPosition = 0.5
-   this._scenePosition = 0.5
-   this._viewOffset = 0
-   this._sceneOffset = 0
+
+class PinBase {
+   constructor() {
+      this._view = {
+         position: 0.5,
+         offset: 0
+      }
+      this._scene = {
+         position: 0.5,
+         offset: 0
+      }
+   }
+
+   view(value, offset) {
+      this._view.position = isNumber(value) ? value : this._view.position
+      this._view.offset = parseOffset(offset)
+      return this
+   }
+
+   scene(value, offset) {
+      this._scene.position = isNumber(value) ? value : this._scene.position
+      this._scene.offset = parseOffset(offset)
+      return this
+   }
 }
-PinBase.prototype.view = function (value, offset) {
-   this._viewPosition = isNumber(value) ? value : this._viewPosition
-   this._viewOffset = parseOffset(offset)
-   return this
-}
-PinBase.prototype.scene = function (value, offset) {
-   this._scenePosition = isNumber(value) ? value : this._scenePosition
-   this._sceneOffset = parseOffset(offset)
-   return this
-}
+
+export default PinBase
