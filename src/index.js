@@ -2,15 +2,14 @@ import observer from './observer'
 import scout from './scout'
 import contextDom from './contextDom'
 
-var defaultContext = Function.prototype
-
-if (typeof window !== 'undefined') {
-   defaultContext = contextDom
+const defaultOptions = {
+   runInitialUpdate: true,
+   context: (typeof window !== 'undefined') ? contextDom : Function.prototype
 }
 
-const create = function (scene, options, userContext) {
-   const context = userContext ? userContext : defaultContext
-   return scout(observer(), options, context(scene))
+const create = function (view, scene, options) {
+   const optns = Object.assign(defaultOptions, options)
+   return scout(observer(), view, scene, optns)
 }
 
 module.exports = {create}

@@ -5,10 +5,6 @@ import {AXIS_X, AXIS_Y} from './constants'
 import {directionPredicates} from './predicates'
 
 
-const defaultOptions = {
-   runInitialUpdate: true
-}
-
 export const targetPoint = function (a1, a2, p, o) {
    return (a1 + a2 * p) + o
 }
@@ -31,11 +27,11 @@ export const someAxis = function (axis) {
 const someAxisX = someAxis(AXIS_X)
 const someAxisY = someAxis(AXIS_Y)
 
-export default function scout(obs, opt, inpEnv) {
+export default function scout(obsvr, view, scene, optns) {
 
-   var observer = obs,
-      options = Object.assign(defaultOptions, opt),
-      inputEnv = inpEnv,
+   var observer = obsvr,
+      options = optns,
+      contextReader = options.context(view, scene),
       pins = {},
       pinSubscribers = [],
       prevState,
@@ -79,7 +75,7 @@ export default function scout(obs, opt, inpEnv) {
       return pin
    }
 
-   const removePin = function(pinName){
+   const removePin = function (pinName) {
       const listeners = observer.getListeners()
       const listenersWithPinName = listeners.filter((lnr) => lnr.type === pinName)
       listenersWithPinName.forEach((lsnr) => {
@@ -89,7 +85,8 @@ export default function scout(obs, opt, inpEnv) {
    }
 
    const initialize = function () {
-      prevState = createInitialState(inputEnv, feedX, feedY)
+      prevState = createInitialState(contextReader, feedX, feedY)
+      console.log('initial prevState:', prevState);
       initialized = true
    }
 
@@ -118,7 +115,10 @@ export default function scout(obs, opt, inpEnv) {
       if (!initialized) {
          initialize()
       }
-      const nextState = createState(inputEnv, feedX, feedY)
+      console.log('update');
+
+      const nextState = createState(contextReader, feedX, feedY)
+      console.log('nextState:', nextState);
       pinSubscribers.forEach((pin) => {
          const predicate = directionPredicates[pin._direction]
          const prevStatePair = anonymousAxisPair(pin._axis, prevState.view, prevState.scene)
@@ -126,12 +126,13 @@ export default function scout(obs, opt, inpEnv) {
          const pT = targetPointPair(prevStatePair[0], prevStatePair[1], pin)
          const nT = targetPointPair(nextStatePair[0], nextStatePair[1], pin)
          const passed = predicate(pT[0], pT[1], nT[0], nT[1])
+         console.log('passed:', passed);
          if (passed) notifyListeners(pin._name, {})
       })
       prevState = nextState
    }
 
-   const getPin = function(pinName){
+   const getPin = function (pinName) {
       return pins[pinName]
    }
 
