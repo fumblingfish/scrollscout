@@ -11,5 +11,13 @@ export const unique = function (list) {
    }
 }
 
+export const any = function (fn, arr) {
+   return arr.reduce((acc, next) => {
+      if(acc === true) return
+      return fn(next)
+   }, false)
+}
+
+
 export const isNumber = (obj) => Object.prototype.toString.call(obj) == '[object Number]'
 export const isString = (obj) => Object.prototype.toString.call(obj) == '[object String]'

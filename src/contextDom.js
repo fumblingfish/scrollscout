@@ -1,3 +1,5 @@
+import {contextDebug, contextDebugUpdate }from './contextDomDebug'
+
 const contextWindow = function (window) {
    return {
       top: () => {
@@ -35,18 +37,19 @@ export default function (viewElement, sceneElement) {
    var contextView = Function.prototype
    if (typeof window !== 'undefined') {
       if (!(sceneElement instanceof HTMLElement)) {
-         throw new Error('element must be a of type HTMLElement')
+         throw new Error('element must be a of type HTMLElement', sceneElement)
       }
       if (viewElement === window || viewElement === 'window') {
          contextView = contextWindow
       } else if (viewElement instanceof HTMLElement) {
-         viewElement.style.position = 'relative'
          contextView = contextViewElement
       }
    }
    return {
       view: contextView(viewElement),
       scene: contextSceneElement(sceneElement),
+      debug: contextDebug,
+      debugUpdate: contextDebugUpdate
    }
 }
 

@@ -1,6 +1,6 @@
 import Pin from './pin'
 import createState, {createInitialState} from './createState'
-import {unique, filterOverKeyValue} from './common'
+import {unique, filterOverKeyValue, any} from './common'
 import {AXIS_X, AXIS_Y} from './constants'
 import {directionPredicates} from './predicates'
 
@@ -24,6 +24,24 @@ export const someAxis = function (axis) {
    }
 }
 
+export const anonymousAxisPair = function (axis, viewState, sceneState) {
+   return (axis === AXIS_Y) ?
+      [[viewState.y1, viewState.y2], [sceneState.y1, sceneState.y2]] :
+      [[viewState.x1, viewState.x2], [sceneState.x1, sceneState.x2]]
+}
+
+export const passedTargetPoint = function (pState, nState) {
+   return function (pin) {
+      const predicate = directionPredicates[pin._direction]
+      const prevStatePair = anonymousAxisPair(pin._axis, pState.view, pState.scene)
+      const nextStatePair = anonymousAxisPair(pin._axis, nState.view, nState.scene)
+      const pT = targetPointPair(prevStatePair[0], prevStatePair[1], pin)
+      const nT = targetPointPair(nextStatePair[0], nextStatePair[1], pin)
+      return predicate(pT[0], pT[1], nT[0], nT[1])
+   }
+}
+
+
 const someAxisX = someAxis(AXIS_X)
 const someAxisY = someAxis(AXIS_Y)
 
@@ -31,14 +49,17 @@ export default function scout(obsvr, view, scene, optns) {
 
    var observer = obsvr,
       options = optns,
-      contextReader = options.context(view, scene),
+      contextEnv = options.context(view, scene),
       pins = {},
       pinSubscribers = [],
       prevState,
       feedY = false,
       feedX = false,
       shouldRefreshBeforeUpdate = true,
-      initialized = false
+      initialized = false,
+      cachedUpdate,
+      debugging = false,
+      contextDebugger
 
 
    const pinChanges = function () {
@@ -68,8 +89,6 @@ export default function scout(obsvr, view, scene, optns) {
 
    const addPin = function (pinName) {
       if (pins[pinName]) return false
-
-      //Todo: must be unique and must be string
       const pin = new Pin(pinName, _scoutInternal)
       pins[pinName] = pin
       return pin
@@ -84,9 +103,28 @@ export default function scout(obsvr, view, scene, optns) {
       return delete pins[pinName]
    }
 
+   const getPin = function (pinName) {
+      return pins[pinName]
+   }
+
+   const isDebugging = function () {
+      return debugging
+   }
+
+   const debug = function (value) {
+      if (value === false) {
+         Object.keys(pins).forEach(key => {
+            pins[key].debug(false)
+         })
+      } else {
+         Object.keys(pins).forEach(key => {
+            pins[key].debug(true)
+         })
+      }
+   }
+
    const initialize = function () {
-      prevState = createInitialState(contextReader, feedX, feedY)
-      console.log('initial prevState:', prevState);
+      prevState = createInitialState(contextEnv, feedX, feedY)
       initialized = true
    }
 
@@ -100,47 +138,66 @@ export default function scout(obsvr, view, scene, optns) {
       feedX = someAxisX(listeners, pins)
       feedY = someAxisY(listeners, pins)
       shouldRefreshBeforeUpdate = false
+
+      const pinsToDebug = pinSubscribers.filter(pin => pin._debug)
+
+      if (pinsToDebug.length > 0) {
+         debugging = true
+         if (contextDebugger) {
+            contextDebugger.clearPins()
+         }
+         contextDebugger = contextEnv.debug(view, scene, pinsToDebug)
+         if (!initialized) {
+            // make sure prevState exits before adding debug marks
+            initialize()
+         }
+
+         cachedUpdate = !cachedUpdate ? updateScout : cachedUpdate
+         updateScout = () => {
+            cachedUpdate.apply(this, arguments)
+            // after cachedUpdate prevState is updated
+            contextDebugger.update(prevState)
+         }
+         updateScout()
+      } else if (debugging) {
+         debugging = false
+         contextDebugger.clearAll()
+         updateScout = cachedUpdate
+         cachedUpdate = null
+
+      }
    }
 
-   const anonymousAxisPair = function (axis, viewState, sceneState) {
-      return (axis === AXIS_Y) ?
-         [[viewState.y1, viewState.y2], [sceneState.y1, sceneState.y2]] :
-         [[viewState.x1, viewState.x2], [sceneState.x1, sceneState.x2]]
-   }
+   var updateScout = function () {
 
-   const update = function (fn) {
       if (shouldRefreshBeforeUpdate) {
          refreshProps()
       }
       if (!initialized) {
          initialize()
       }
-      console.log('update');
 
-      const nextState = createState(contextReader, feedX, feedY)
-      console.log('nextState:', nextState);
-      pinSubscribers.forEach((pin) => {
-         const predicate = directionPredicates[pin._direction]
-         const prevStatePair = anonymousAxisPair(pin._axis, prevState.view, prevState.scene)
-         const nextStatePair = anonymousAxisPair(pin._axis, nextState.view, nextState.scene)
-         const pT = targetPointPair(prevStatePair[0], prevStatePair[1], pin)
-         const nT = targetPointPair(nextStatePair[0], nextStatePair[1], pin)
-         const passed = predicate(pT[0], pT[1], nT[0], nT[1])
-         console.log('passed:', passed);
-         if (passed) notifyListeners(pin._name, {})
+      const nextState = createState(contextEnv, feedX, feedY)
+      const pinsToNotify = pinSubscribers.filter(passedTargetPoint(prevState, nextState))
+
+      pinsToNotify.forEach((pin) => {
+         notifyListeners(pin._name, {})
       })
+
       prevState = nextState
    }
 
-   const getPin = function (pinName) {
-      return pins[pinName]
+   const update = function () {
+      updateScout()
    }
+
 
    if (options.runInitialUpdate) {
       if (typeof window !== 'undefined' && window.requestAnimationFrame) {
-         window.requestAnimationFrame(update)
+         window.requestAnimationFrame(updateScout)
       }
    }
+
 
    var _scoutInternal = {
       addListener,
@@ -158,5 +215,7 @@ export default function scout(obsvr, view, scene, optns) {
       update,
       getPin,
       removePin,
+      isDebugging,
+      debug
    }
 }

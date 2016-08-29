@@ -6,7 +6,7 @@ import chai from 'chai'
 const expect = chai.expect
 
 const dummyScoutRef = {
-   pinChanges: () => {}
+   pinChanges: Function.prototype
 }
 
 const pinViewSceneTest = function (method) {
@@ -20,7 +20,7 @@ const pinViewSceneTest = function (method) {
    const pinB = new Pin('B', dummyScoutRef)[method](1, 100)
    expect(pinB[prop].position).to.be.equal(1)
    expect(pinB[prop].offset).to.be.equal(100)
-   //
+
    const pinC = new Pin('C', dummyScoutRef)[method](1, '100px')
    expect(pinC[prop].position).to.be.equal(1)
    expect(pinC[prop].offset).to.be.equal(100)
@@ -47,7 +47,6 @@ describe('pin', function () {
          expect(value).to.be.equal(1)
       })
    })
-
 
    describe('destroy', function () {
       it('should remove and delete pin from scout and unsubscribe listeners"', () => {
@@ -86,5 +85,15 @@ describe('pin', function () {
       })
    })
 
+   describe('debug', function () {
+      it('should set _debug to true if value is undefined or true', () => {
+         const pin = new Pin('A', dummyScoutRef).debug()
+         expect(pin._debug).to.be.equal(true)
+         pin.debug(false)
+         expect(pin._debug).to.be.equal(false)
+         pin.debug()
+         expect(pin._debug).to.be.equal(true)
+      })
+   })
 
 })
