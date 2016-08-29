@@ -1,53 +1,28 @@
-import {contextDebug, contextDebugUpdate }from './contextDomDebug'
-
-const contextWindow = function (window) {
-   return {
-      top: () => {
-         var doc = document.documentElement
-         return (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0)
-      },
-      left: () => {
-         var doc = document.documentElement
-         return (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0)
-      },
-      width: () => window.innerWidth,
-      height: () => window.innerHeight,
-   }
-}
-
-const contextViewElement = function (element) {
-   return {
-      top: () => element.scrollTop,
-      left: () => element.scrollLeft,
-      width: () => element.offsetWidth,
-      height: () => element.offsetHeight,
-   }
-}
-
-const contextSceneElement = function (element) {
-   return {
-      top: () => element.offsetTop,
-      left: () => element.offsetLeft,
-      width: () => element.offsetWidth,
-      height: () => element.offsetHeight,
-   }
-}
+import {contextDebug, contextDebugUpdate} from './contextDomDebug'
+import {
+   contextViewWindow,
+   contextViewElement,
+   contextSceneWindow,
+   contextSceneElement,
+} from './contextDomEnv'
 
 export default function (viewElement, sceneElement) {
-   var contextView = Function.prototype
+   var contextView, contextScene
    if (typeof window !== 'undefined') {
       if (!(sceneElement instanceof HTMLElement)) {
          throw new Error('element must be a of type HTMLElement', sceneElement)
       }
       if (viewElement === window || viewElement === 'window') {
-         contextView = contextWindow
+         contextView = contextViewWindow(viewElement)
+         contextScene = contextSceneWindow(sceneElement)
       } else if (viewElement instanceof HTMLElement) {
-         contextView = contextViewElement
+         contextView = contextViewElement(viewElement)
+         contextScene = contextSceneElement(viewElement, sceneElement)
       }
    }
    return {
-      view: contextView(viewElement),
-      scene: contextSceneElement(sceneElement),
+      view: contextView,
+      scene: contextScene,
       debug: contextDebug,
       debugUpdate: contextDebugUpdate
    }
