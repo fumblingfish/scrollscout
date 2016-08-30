@@ -5,7 +5,6 @@ var parseOffset = function (offset) {
    return isString(offset) ? parseFloat(offset.match(/[-+0-9]+/g)) : parseFloat(offset)
 }
 
-
 class PinBase {
    constructor() {
       this._view = {

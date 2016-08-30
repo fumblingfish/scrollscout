@@ -1,12 +1,11 @@
-import {ASCEND} from './constants'
+import {BACKWARD} from './constants'
 import {anonymousAxisPair, targetPointPair, targetPoint} from './scout'
 
-const colors = ['deeppink', 'lime', 'cyan', 'purple', 'yellow', 'fuchsia' ]
+const colors = ['deeppink', 'lime', 'cyan', 'orangeRed', 'yellow', 'fuchsia']
 var colorIndex = 0
-
 var UID = 0
 
-const uid = function(){
+const uid = function () {
    return UID++
 }
 
@@ -33,13 +32,13 @@ const translate = (axis, value) => `${axis}(${value}px)`
 const createMarker = function (targetType, pin) {
 
    const axisStyle = propMap[pin._axis]
-   const dir = pin._direction === ASCEND ? 1 : 0
+   const dir = pin._direction === BACKWARD ? 1 : 0
 
-   const marker      = document.createElement('div')
-   const line        = document.createElement('div')
-   const title       = document.createElement('div')
-   const dirPointer  = document.createElement('div')
-   const markerName  = document.createTextNode(pin._name)
+   const marker = document.createElement('div')
+   const line = document.createElement('div')
+   const title = document.createElement('div')
+   const dirPointer = document.createElement('div')
+   const markerName = document.createTextNode(pin._name)
 
    title.appendChild(markerName)
    marker.appendChild(dirPointer)
@@ -59,16 +58,18 @@ const createMarker = function (targetType, pin) {
    line.style[axisStyle.sides[dir]] = '0px'
    line.style[axisStyle.size[0]] = '1px'
    line.style[axisStyle.size[1]] = '80px'
+   line.style.boxShadow = '0px 0px 1px rgba(0, 0, 0, 0.5)'
 
    title.style.position = 'absolute'
    title.style[axisStyle.orientation] = '5px'
 
+   marker.id = `__pin__${targetType}__${pin._name}`
    marker.style[axisStyle.orientation] = 0
    marker.style.cssText = 'position:fixed; font-family:consolas, monospace; font-size:10px;'
    marker.style.zIndex = 100000
    marker.style.color = pin._debugColor
-   marker.id = `__pin__${targetType}__${pin._name}`
    marker.style.pointerEvents = 'none'
+   marker.style.textShadow = '0px 0px 2px rgba(0, 0, 0, 0.5)'
 
    return {marker, line, title, dirPointer}
 }
@@ -76,7 +77,7 @@ const createMarker = function (targetType, pin) {
 const styleMarkerView = function (markObj, pin) {
    const {marker, title, dirPointer} = markObj
    const axisStyle = propMap[pin._axis]
-   const dir = pin._direction === ASCEND ? 1 : 0
+   const dir = pin._direction === BACKWARD ? 1 : 0
    marker.style[axisStyle.sides[dir]] = '0px'
    title.style[axisStyle.sides[dir]] = '5px'
    dirPointer.innerHTML = axisStyle.arrowChar[dir]
@@ -88,7 +89,7 @@ const styleMarkerView = function (markObj, pin) {
 const styleMarkerScene = function (markObj, pin) {
    const {marker, line, title, dirPointer} = markObj
    const axisStyle = propMap[pin._axis]
-   const dir = pin._direction === ASCEND ? 1 : 0
+   const dir = pin._direction === BACKWARD ? 1 : 0
    const dirInv = dir ? 0 : 1
    marker.style[axisStyle.sides[dir]] = '40px'
    line.style.background = pin._debugColor
@@ -138,7 +139,7 @@ export const contextDebug = function (viewElement, sceneElement, pins) {
       pin.__debugSceneMarker = styleMarkerScene(markerScene, pin)
       debugContainer.appendChild(pin.__debugViewMarker)
       debugContainer.appendChild(pin.__debugSceneMarker)
-      if(!isViewWindow){
+      if (!isViewWindow) {
          pin.__debugViewMarker.style.position = 'absolute'
          pin.__debugSceneMarker.style.position = 'absolute'
       }
@@ -164,10 +165,10 @@ export const contextDebug = function (viewElement, sceneElement, pins) {
                const positionView = targetPoint(0, viewSize, pin._view.position, pin._view.offset)
 
                pin.__debugViewMarker.style[axisStyle.orientation] = `${positionView}px`
-               pin.__debugSceneMarker.style[axisStyle.orientation] =`${nT[1] - viewPos}px`
+               pin.__debugSceneMarker.style[axisStyle.orientation] = `${nT[1] - viewPos}px`
 
                debugContainer.style.top = px(viewElement.getBoundingClientRect().top)
-               debugContainer.style.left =  px(viewElement.getBoundingClientRect().left)
+               debugContainer.style.left = px(viewElement.getBoundingClientRect().left)
                debugContainer.style.width = px(contextDom.view.width())
                debugContainer.style.height = px(contextDom.view.height())
 

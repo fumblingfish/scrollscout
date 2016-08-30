@@ -1,9 +1,8 @@
 import Pin from './pin'
 import createState, {createInitialState} from './createState'
-import {unique, filterOverKeyValue, any} from './common'
+import {unique, filterOverKeyValue} from './common'
 import {AXIS_X, AXIS_Y} from './constants'
 import {directionPredicates} from './predicates'
-
 
 export const targetPoint = function (a1, a2, p, o) {
    return (a1 + a2 * p) + o
@@ -45,11 +44,12 @@ export const passedTargetPoint = function (pState, nState) {
 const someAxisX = someAxis(AXIS_X)
 const someAxisY = someAxis(AXIS_Y)
 
+
 export default function scout(obsvr, view, scene, optns) {
 
    var observer = obsvr,
       options = optns,
-      contextEnv = options.context(view, scene),
+      contextEnv,
       pins = {},
       pinSubscribers = [],
       prevState,
@@ -121,6 +121,7 @@ export default function scout(obsvr, view, scene, optns) {
             pins[key].debug(true)
          })
       }
+      update()
    }
 
    const initialize = function () {
@@ -146,12 +147,11 @@ export default function scout(obsvr, view, scene, optns) {
          if (contextDebugger) {
             contextDebugger.clearPins()
          }
-         contextDebugger = contextEnv.debug(view, scene, pinsToDebug)
+         contextDebugger = contextEnv.debug(pinsToDebug)
          if (!initialized) {
             // make sure prevState exits before adding debug marks
             initialize()
          }
-
          cachedUpdate = !cachedUpdate ? updateScout : cachedUpdate
          updateScout = () => {
             cachedUpdate.apply(this, arguments)
@@ -161,10 +161,9 @@ export default function scout(obsvr, view, scene, optns) {
          updateScout()
       } else if (debugging) {
          debugging = false
-         contextDebugger.clearAll()
+         contextEnv.debugStop(contextDebugger)
          updateScout = cachedUpdate
          cachedUpdate = null
-
       }
    }
 
@@ -191,6 +190,13 @@ export default function scout(obsvr, view, scene, optns) {
       updateScout()
    }
 
+   const run = function (exposeUpdateFn) {
+      contextEnv.run(exposeUpdateFn)
+   }
+
+   const stop = function () {
+      contextEnv.stop()
+   }
 
    if (options.runInitialUpdate) {
       if (typeof window !== 'undefined' && window.requestAnimationFrame) {
@@ -198,12 +204,14 @@ export default function scout(obsvr, view, scene, optns) {
       }
    }
 
-
    var _scoutInternal = {
       addListener,
       removePin,
-      pinChanges
+      pinChanges,
+      update
    }
+
+   contextEnv = options.context(view, scene, _scoutInternal)
 
    return {
       addPin,
@@ -216,6 +224,8 @@ export default function scout(obsvr, view, scene, optns) {
       getPin,
       removePin,
       isDebugging,
-      debug
+      debug,
+      run,
+      stop
    }
 }

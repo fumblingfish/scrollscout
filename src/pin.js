@@ -1,12 +1,12 @@
 import PinBase from './pinbase'
-import {DESCEND, ASCEND, AXIS_X, AXIS_Y} from './constants'
+import {FORWARD, BACKWARD, AXIS_X, AXIS_Y} from './constants'
 
 
-class Pin extends PinBase{
+class Pin extends PinBase {
    constructor(name, scoutRef) {
       super()
       this._name = name
-      this._direction = DESCEND
+      this._direction = FORWARD
       this._axis = AXIS_Y
       this._debug = false
       this._pinChanges = scoutRef.pinChanges
@@ -15,14 +15,14 @@ class Pin extends PinBase{
       return this
    }
 
-   descend() {
-      this._direction = DESCEND
+   forward() {
+      this._direction = FORWARD
       this._pinChanges()
       return this
    }
 
-   ascend() {
-      this._direction = ASCEND
+   backward() {
+      this._direction = BACKWARD
       this._pinChanges()
       return this
    }
@@ -45,7 +45,7 @@ class Pin extends PinBase{
       return this
    }
 
-   debug(value){
+   debug(value) {
       this._debug = (typeof value === 'undefined' || value !== false)
       this._debugColor = (typeof value !== 'undefined' && value !== false && value !== true) ? value : undefined
       this._pinChanges()

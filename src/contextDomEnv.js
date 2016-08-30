@@ -1,4 +1,3 @@
-
 export const contextViewWindow = function () {
    return {
       top: () => {
