@@ -1,7 +1,7 @@
 {
   "name": "scrollscout",
-  "version": "0.0.1",
-  "description": "Monitoring elements entering/leaving viewport",
+  "version": "0.1.0",
+  "description": "Observing elements entering/leaving viewport",
   "keywords": [
     "scroll",
     "observer",
@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/holstandersson/scrollscout.git"
+    "url": "git+https://github.com/fumblingfish/scrollscout.git"
   },
   "author": "Rasmus Holst Andersson",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/holstandersson/scrollscout/issues"
+    "url": "https://github.com/fumblingfish/scrollscout/issues"
   },
-  "homepage": "https://github.com/holstandersson/scrollscout#readme",
+  "homepage": "https://github.com/fumblingfish/scrollscout#readme",
   "dependencies": {},
   "devDependencies": {
     "babel-core": "^6.13.2",
