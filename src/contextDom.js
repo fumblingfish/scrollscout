@@ -62,6 +62,7 @@ export default function (viewElement, sceneElement, scout) {
             window.removeEventListener('scroll', update)
             window.removeEventListener('resize', update)
          }
+         debugging = false
          contextDebugger.clearAll()
       },
       run: startUpdater,
