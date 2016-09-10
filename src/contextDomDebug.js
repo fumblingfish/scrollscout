@@ -1,5 +1,5 @@
 import {BACKWARD} from './constants'
-import {anonymousAxisPair, targetPointPair, targetPoint} from './scout'
+import {axisPair, targetPointPair, targetPoint} from './scout'
 
 const colors = ['deeppink', 'lime', 'cyan', 'orangeRed', 'yellow', 'fuchsia']
 var colorIndex = 0
@@ -58,7 +58,7 @@ const createMarker = function (targetType, pin) {
    line.style[axisStyle.sides[dir]] = '0px'
    line.style[axisStyle.size[0]] = '1px'
    line.style[axisStyle.size[1]] = '80px'
-   line.style.boxShadow = '0px 0px 1px rgba(0, 0, 0, 0.5)'
+   //line.style.boxShadow = '0px 0px 1px rgba(0, 0, 0, 0.5)'
 
    title.style.position = 'absolute'
    title.style[axisStyle.orientation] = '5px'
@@ -69,7 +69,7 @@ const createMarker = function (targetType, pin) {
    marker.style.zIndex = 100000
    marker.style.color = pin._debugColor
    marker.style.pointerEvents = 'none'
-   marker.style.textShadow = '0px 0px 2px rgba(0, 0, 0, 0.5)'
+   //marker.style.textShadow = '0px 0px 2px rgba(0, 0, 0, 0.5)'
 
    return {marker, line, title, dirPointer}
 }
@@ -79,7 +79,9 @@ const styleMarkerView = function (markObj, pin) {
    const axisStyle = propMap[pin._axis]
    const dir = pin._direction === BACKWARD ? 1 : 0
    marker.style[axisStyle.sides[dir]] = '0px'
-   title.style[axisStyle.sides[dir]] = '5px'
+   title.style[axisStyle.sides[dir]] = '15px'
+   title.style.width = '100px'
+   title.style.textAlign = axisStyle.sides[dir]
    dirPointer.innerHTML = axisStyle.arrowChar[dir]
    dirPointer.style[axisStyle.sides[dir]] = '60px'
    return markObj.marker
@@ -95,6 +97,8 @@ const styleMarkerScene = function (markObj, pin) {
    line.style.background = pin._debugColor
    line.style[axisStyle.size[1]] = '40px'
    title.style[axisStyle.sides[dir]] = '0px'
+   title.style.width = '100px'
+   title.style.textAlign = axisStyle.sides[dir]
    dirPointer.innerHTML = axisStyle.arrowChar[dirInv]
    return markObj.marker
 }
@@ -150,7 +154,7 @@ export const contextDebug = function (viewElement, sceneElement, pins) {
          pins.forEach(function (pin) {
 
             const axisStyle = propMap[pin._axis]
-            const nextStatePair = anonymousAxisPair(pin._axis, nState.view, nState.scene)
+            const nextStatePair = axisPair(pin._axis, nState.view, nState.scene)
             const nT = targetPointPair(nextStatePair[0], nextStatePair[1], pin)
 
             if (isViewWindow) {

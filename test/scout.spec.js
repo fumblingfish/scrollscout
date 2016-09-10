@@ -1,6 +1,6 @@
 import chai from 'chai'
 import scrollscout from '../src'
-import { someAxis, targetPointPair } from '../src/scout'
+import {someAxis, targetPointPair, notificationOrder, enchancedPins} from '../src/scout'
 import {AXIS_X, AXIS_Y} from '../src/constants'
 import Pin from '../src/pin'
 
@@ -8,7 +8,7 @@ const expect = chai.expect
 
 describe('scout', function () {
 
-   describe('addPin', function() {
+   describe('addPin', function () {
       it('should return a new pin', () => {
          const sc = scrollscout.create()
          const pin = sc.addPin('A')
@@ -23,7 +23,7 @@ describe('scout', function () {
 
    })
 
-   describe('getPin', function() {
+   describe('getPin', function () {
       it('should return pin by name', () => {
          const sc = scrollscout.create()
          sc.addPin('A')
@@ -32,7 +32,7 @@ describe('scout', function () {
       })
    })
 
-   describe('removePin', function() {
+   describe('removePin', function () {
       it('should remove a Pin', () => {
          const sc = scrollscout.create()
          sc.addPin('A')
@@ -53,7 +53,7 @@ describe('scout', function () {
       })
    })
 
-   describe('notifyListeners', function() {
+   describe('notifyListeners', function () {
       it('should notify subscribers', () => {
          var value = 0
          const sc = scrollscout.create()
@@ -78,7 +78,7 @@ describe('scout', function () {
    })
 
 
-   describe('addListeners', function() {
+   describe('addListeners', function () {
       it('should add listeners and return unsubscriber function', () => {
          var value = 0, unsub
          const sc = scrollscout.create()
@@ -92,7 +92,7 @@ describe('scout', function () {
       })
    })
 
-   describe('removeListeners', function() {
+   describe('removeListeners', function () {
       it('should remove a listener', () => {
          var value = 0
          const fn = () => value++
@@ -107,7 +107,7 @@ describe('scout', function () {
       })
    })
 
-   describe('someAxis', function() {
+   describe('someAxis', function () {
       it('should check if there are any subscriptions to a given axis', () => {
          var expectedX, expectedY
          const sc = scrollscout.create()
@@ -118,13 +118,13 @@ describe('scout', function () {
          const pinC = sc.addPin('C').axis('y')
 
          const pins = {'A': pinA, 'B': pinB, 'C': pinC,}
-         const listeners1 = [{type:'A'}, {type:'B'}, {type:'C'}]
+         const listeners1 = [{type: 'A'}, {type: 'B'}, {type: 'C'}]
          expectedX = someAxisX(listeners1, pins)
          expectedY = someAxisY(listeners1, pins)
          expect(expectedX).to.be.equal(true)
          expect(expectedY).to.be.equal(true)
 
-         const listeners2 = [{type:'B'}, {type:'C'}]
+         const listeners2 = [{type: 'B'}, {type: 'C'}]
          expectedX = someAxisX(listeners2, pins)
          expectedY = someAxisY(listeners2, pins)
          expect(expectedX).to.be.equal(false)
@@ -138,7 +138,7 @@ describe('scout', function () {
       })
    })
 
-   describe('targetPointPair', function() {
+   describe('targetPointPair', function () {
       it('should return a pair of two targePoints [view, scene]', () => {
          var stateA = [
             [1, 4],
@@ -146,25 +146,25 @@ describe('scout', function () {
          ]
          var actual, pin
          pin = {
-            _view:{
-               position:0.5,
-               offset:0
+            _view: {
+               position: 0.5,
+               offset: 0
             },
-            _scene:{
-               position:0.5,
-               offset:0
+            _scene: {
+               position: 0.5,
+               offset: 0
             }
          }
          actual = targetPointPair(stateA[0], stateA[1], pin)
          expect(actual).to.deep.equal([3, 4])
          pin = {
-            _view:{
-               position:0.5,
-               offset:0
+            _view: {
+               position: 0.5,
+               offset: 0
             },
-            _scene:{
-               position:0,
-               offset:0
+            _scene: {
+               position: 0,
+               offset: 0
             }
          }
          actual = targetPointPair(stateA[0], stateA[1], pin)
@@ -172,6 +172,69 @@ describe('scout', function () {
       })
    })
 
+   const getOrderedPins = (pins) => notificationOrder(pins.map(enchancedPins))
+
+   describe('notificationOrder', function () {
+      it('should return notificationList in right order ', () => {
+         var resolvedPinsToNotify, orderedPair
+         resolvedPinsToNotify = [{
+               pT: [140, 240],
+               nT: [302, 240],
+               pin: {_name: 'A1', _direction: 'forward'}
+            },
+            {
+               pT: [200, 256],
+               nT: [370, 256],
+               pin: {_name: 'B1', _direction: 'forward'}
+            }]
+         orderedPair = getOrderedPins(resolvedPinsToNotify)
+         expect(orderedPair[0].pin._name === 'B1').to.be.equal(true)
+
+         resolvedPinsToNotify = [{
+               pT: [216, 250],
+               nT: [328, 250],
+               pin: {_name: 'A2', _direction: 'forward'}
+            },
+            {
+               pT: [284, 300],
+               nT: [312, 300],
+               pin: {_name: 'B2', _direction: 'forward'}
+            }]
+         orderedPair = getOrderedPins(resolvedPinsToNotify)
+         expect(orderedPair[0].pin._name === 'A2').to.be.equal(true)
+
+         resolvedPinsToNotify = [{
+            pT: [370, 240],
+            nT: [328, 240],
+            pin: {_name: 'A3b', _direction: 'backward'}
+         },
+         {
+            pT: [302, 256],
+            nT: [140, 256],
+            pin: {_name: 'B3b', _direction: 'backward'}
+         }]
+         orderedPair = getOrderedPins(resolvedPinsToNotify)
+         expect(orderedPair[0].pin._name === 'B3b').to.be.equal(true)
+
+         resolvedPinsToNotify = [{
+            pT: [325, 250],
+            nT: [179, 300],
+            pin: {_name: 'B4b', _direction: 'backward'}
+         },
+         {
+            pT: [265, 230],
+            nT: [151, 280],
+            pin: {_name: 'A4b', _direction: 'backward'}
+         }]
+         orderedPair = getOrderedPins(resolvedPinsToNotify)
+         expect(orderedPair[0].pin._name === 'A4b').to.be.equal(true)
+
+      })
+
+
+
+
+   })
 
 
 })

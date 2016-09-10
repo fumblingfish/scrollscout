@@ -23,27 +23,43 @@ export const someAxis = function (axis) {
    }
 }
 
-export const anonymousAxisPair = function (axis, viewState, sceneState) {
+export const axisPair = function (axis, viewState, sceneState) {
    return (axis === AXIS_Y) ?
       [[viewState.y1, viewState.y2], [sceneState.y1, sceneState.y2]] :
       [[viewState.x1, viewState.x2], [sceneState.x1, sceneState.x2]]
 }
 
-export const passedTargetPoint = function (pState, nState) {
+export const enchancedPins = function (pinObj) {
+   const {pT, nT} = pinObj
+   const pDist = pT[1] - pT[0]
+   const nDist = nT[0] - nT[1]
+   const move = pDist + nDist
+   const pDistRatio = pDist / move
+   return {move, pDist, nDist, pDistRatio, ...pinObj}
+}
+
+const smallestDistRatioFirst = function (a, b) {
+   return a.pDistRatio < b.pDistRatio ? -1 : 1
+}
+
+export const notificationOrder = function (pins) {
+   return pins.sort(smallestDistRatioFirst)
+}
+
+export const resolveTargetPoint = function (pState, nState) {
    return function (pin) {
       const predicate = directionPredicates[pin._direction]
-      const prevStatePair = anonymousAxisPair(pin._axis, pState.view, pState.scene)
-      const nextStatePair = anonymousAxisPair(pin._axis, nState.view, nState.scene)
+      const prevStatePair = axisPair(pin._axis, pState.view, pState.scene)
+      const nextStatePair = axisPair(pin._axis, nState.view, nState.scene)
       const pT = targetPointPair(prevStatePair[0], prevStatePair[1], pin)
       const nT = targetPointPair(nextStatePair[0], nextStatePair[1], pin)
-      return predicate(pT[0], pT[1], nT[0], nT[1])
+      const notify = predicate(pT[0], pT[1], nT[0], nT[1])
+      return {pin, pT, nT, notify}
    }
 }
 
-
 const someAxisX = someAxis(AXIS_X)
 const someAxisY = someAxis(AXIS_Y)
-
 
 export default function scout(obsvr, view, scene, optns) {
 
@@ -177,10 +193,13 @@ export default function scout(obsvr, view, scene, optns) {
       }
 
       const nextState = createState(contextEnv, feedX, feedY)
-      const pinsToNotify = pinSubscribers.filter(passedTargetPoint(prevState, nextState))
+      const resolvedPins = pinSubscribers.map(resolveTargetPoint(prevState, nextState))
+      const resolvedPinsToNotify = resolvedPins.filter((resolvedPin) => resolvedPin.notify)
+      const pinsToNotify = resolvedPinsToNotify.map(enchancedPins)
+      const ordered = pinsToNotify.length > 1 ? notificationOrder(pinsToNotify) : pinsToNotify
 
-      pinsToNotify.forEach((pin) => {
-         notifyListeners(pin._name, {})
+      ordered.forEach((resolvedPin) => {
+         notifyListeners(resolvedPin.pin._name, {})
       })
 
       prevState = nextState
