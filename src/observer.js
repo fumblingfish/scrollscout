@@ -1,8 +1,10 @@
+import _ from 'lodash'
+
 function observer() {
    var listeners = [], UID = 0
 
    const removeEventListener = (id) => {
-      listeners = listeners.filter(listener => listener.id !== id)
+      listeners = _.filter(listeners, listener => listener.id !== id)
       return id
    }
 
@@ -37,7 +39,7 @@ function observer() {
       },
 
       notifyListeners(type, evt) {
-         listeners.forEach((listener) => {
+         _.forEach(listeners, (listener) => {
             if (listener.type === type) {
                listener.callback(evt)
             }
@@ -45,10 +47,10 @@ function observer() {
       },
 
       uniqueTypesSubscribed() {
-         const types = listeners.map((e) => {
+         const types = _.map(listeners, (e) => {
             return e.type
          })
-         return types.reduce((acc, next) => {
+         return _.reduce(types, (acc, next) => {
             if (acc.indexOf(next) !== -1) return acc
             acc.push(next)
             return acc

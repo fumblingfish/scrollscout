@@ -1,5 +1,7 @@
+import _ from 'lodash'
+
 import {contextDebug, contextDebugUpdate} from './contextDomDebug'
-import {isFunction} from './common'
+
 import {
    contextViewWindow,
    contextViewElement,
@@ -30,7 +32,7 @@ export default function (viewElement, sceneElement, scout) {
    }
 
    const startUpdater = function (exposeUpdateFn) {
-      updateFn = isFunction(exposeUpdateFn) ? exposeUpdateFn(updateHandler) : updateHandler
+      updateFn = _.isFunction(exposeUpdateFn) ? exposeUpdateFn(updateHandler) : updateHandler
       viewElement.removeEventListener('scroll', updateFn)
       viewElement.removeEventListener('resize', updateFn)
       viewElement.addEventListener('scroll', updateFn)

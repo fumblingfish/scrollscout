@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import Pin from './pin'
 import createState, {createInitialState} from './createState'
 import {unique, filterOverKeyValue} from './common'
@@ -24,7 +25,7 @@ export const targetPointPair = function (stateView, stateScene, pin) {
 
 export const someAxis = function (axis) {
    return function (listeners, pins) {
-      return listeners.some((listener) => {
+      return _.some(listeners, (listener) => {
          return ( pins[listener.type]._axis === axis )
       })
    }
@@ -105,8 +106,8 @@ export default function scout(obsvr, view, scene, optns) {
 
    const removePin = function (pinName) {
       const listeners = observer.getListeners()
-      const listenersWithPinName = listeners.filter((lnr) => lnr.type === pinName)
-      listenersWithPinName.forEach((lsnr) => {
+      const listenersWithPinName = _.filter(listeners, (lnr) => lnr.type === pinName)
+      _.forEach(listenersWithPinName, (lsnr) => {
          observer.removeListenerById(lsnr.id)
       })
       return delete pins[pinName]
@@ -122,11 +123,11 @@ export default function scout(obsvr, view, scene, optns) {
 
    const debug = function (value) {
       if (value === false) {
-         Object.keys(pins).forEach(key => {
+         _.keysIn(pins).forEach(key => {
             pins[key].debug(false)
          })
       } else {
-         Object.keys(pins).forEach(key => {
+         _.keysIn(pins).forEach(key => {
             pins[key].debug(true)
          })
       }
@@ -135,8 +136,8 @@ export default function scout(obsvr, view, scene, optns) {
 
    const refreshProps = function () {
       const listeners = observer.getListeners()
-      const types = listeners.map((l) => l.type)
-      const uniqueSubscribers = types.filter(unique(types))
+      const types = _.map(listeners, (l) => l.type)
+      const uniqueSubscribers = _.filter(types, unique(types))
 
       //refresh
       pinSubscribers = filterOverKeyValue(pins, uniqueSubscribers)
@@ -154,7 +155,7 @@ export default function scout(obsvr, view, scene, optns) {
          }
       })
 
-      const pinsToDebug = pinSubscribers.filter(pin => pin._debug)
+      const pinsToDebug = _.filter(pinSubscribers, pin => pin._debug)
 
       if (pinsToDebug.length > 0) {
          debugging = true
@@ -183,7 +184,7 @@ export default function scout(obsvr, view, scene, optns) {
       }
 
       const nextState = createState(contextEnv, feedX, feedY)
-      let resolvedPins = pinSubscribers.map((pin) => {
+      let resolvedPins = _.map(pinSubscribers, (pin) => {
          const pT = pin._pT
          const predicate = directionPredicates[pin._direction]
          const nextStatePair = axisPair(pin._axis, nextState.view, nextState.scene)
@@ -192,15 +193,15 @@ export default function scout(obsvr, view, scene, optns) {
          return {pin, pT, nT, notify}
       })
 
-      resolvedPins.forEach((pinObj) => {
+      _.forEach(resolvedPins, (pinObj) => {
          pinObj.pin._pT = pinObj.nT
       })
 
-      const resolvedPinsToNotify = resolvedPins.filter((resolvedPin) => resolvedPin.notify)
-      const pinsToNotify = resolvedPinsToNotify.map(pinDetails)
+      const resolvedPinsToNotify = _.filter(resolvedPins, (resolvedPin) => resolvedPin.notify)
+      const pinsToNotify = _.map(resolvedPinsToNotify, pinDetails)
       const ordered = pinsToNotify.length > 1 ? notificationOrder(pinsToNotify) : pinsToNotify
 
-      ordered.forEach((resolvedPin) => {
+      _.forEach(ordered, (resolvedPin) => {
          const {pin} = resolvedPin
          var evtObject = {
             target: pin,

@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import observer from './observer'
 import scout from './scout'
 import contextDom from './contextDom'
@@ -8,7 +9,7 @@ const defaultOptions = {
 }
 
 const create = function (view, scene, options) {
-   const optns = Object.assign(defaultOptions, options)
+   const optns = _.assign(defaultOptions, options)
    return scout(observer(), view, scene, optns)
 }
 

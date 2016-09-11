@@ -1,5 +1,7 @@
+import _ from 'lodash'
+
 export const filterOverKeyValue = (obj, arr) => {
-   return arr.reduce((acc, key) => {
+   return _.reduce(arr, (acc, key) => {
       if (!obj[key]) return acc
       return [].concat(acc, [obj[key]])
    }, [])
@@ -11,6 +13,3 @@ export const unique = function (list) {
    }
 }
 
-export const isNumber = (obj) => Object.prototype.toString.call(obj) == '[object Number]'
-export const isString = (obj) => Object.prototype.toString.call(obj) == '[object String]'
-export const isFunction = (obj) => Object.prototype.toString.call(obj) == '[object Function]'
