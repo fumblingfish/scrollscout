@@ -1,5 +1,5 @@
 import {BACKWARD} from './constants'
-import {axisPair, targetPointPair, targetPoint} from './scout'
+import {targetPoint} from './scout'
 
 const colors = ['deeppink', 'lime', 'cyan', 'orangeRed', 'yellow', 'fuchsia']
 var colorIndex = 0
@@ -150,13 +150,10 @@ export const contextDebug = function (viewElement, sceneElement, pins) {
    })
    document.body.appendChild(debugContainer)
    return {
-      update(nState){
+      update(){
          pins.forEach(function (pin) {
-
             const axisStyle = propMap[pin._axis]
-            const nextStatePair = axisPair(pin._axis, nState.view, nState.scene)
-            const nT = targetPointPair(nextStatePair[0], nextStatePair[1], pin)
-
+            const nT = pin._pT
             if (isViewWindow) {
                const viewSize = contextDom.view[axisStyle.size[0]]()
                const viewPos = contextDom.view[axisStyle.orientation]()

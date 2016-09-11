@@ -1,10 +1,25 @@
 import chai from 'chai'
 import scrollscout from '../src'
-import {someAxis, targetPointPair, notificationOrder, enchancedPins} from '../src/scout'
+import {
+   someAxis,
+   targetPointPair,
+   notificationOrder,
+   passesForward,
+   passesBackward,
+   pinDetails
+} from '../src/scout'
 import {AXIS_X, AXIS_Y} from '../src/constants'
 import Pin from '../src/pin'
 
 const expect = chai.expect
+
+const forward = function (pT, nT) {
+   return passesForward(pT[0], pT[1], nT[0], nT[1])
+}
+
+const backward = function (pT, nT) {
+   return passesBackward(pT[0], pT[1], nT[0], nT[1])
+}
 
 describe('scout', function () {
 
@@ -172,16 +187,47 @@ describe('scout', function () {
       })
    })
 
-   const getOrderedPins = (pins) => notificationOrder(pins.map(enchancedPins))
+
+   const A = [1, 2]
+   const B = [2, 2]
+   const C = [3, 2]
+   const D = [0, 0]
+
+   describe('passesForward', function () {
+      it('should return true if view targetpoint passes scene target point forward', () => {
+         expect(forward(A, B)).to.be.equal(true)
+         expect(forward(B, C)).to.be.equal(false)
+         expect(forward(C, B)).to.be.equal(false)
+         expect(forward(B, A)).to.be.equal(false)
+         expect(forward(A, C)).to.be.equal(true)
+         expect(forward(C, A)).to.be.equal(false)
+         expect(forward(D, D)).to.be.equal(false)
+      })
+   })
+
+   describe('passesBackward', function () {
+      it('should return true if view targetpoint is passes scene target point backward', () => {
+         expect(backward(A, B)).to.be.equal(false)
+         expect(backward(B, C)).to.be.equal(false)
+         expect(backward(C, B)).to.be.equal(true)
+         expect(backward(B, A)).to.be.equal(false)
+         expect(backward(A, C)).to.be.equal(false)
+         expect(backward(C, A)).to.be.equal(true)
+         expect(backward(D, D)).to.be.equal(false)
+      })
+   })
+
+
+   const getOrderedPins = (pins) => notificationOrder(pins.map(pinDetails))
 
    describe('notificationOrder', function () {
       it('should return notificationList in right order ', () => {
          var resolvedPinsToNotify, orderedPair
          resolvedPinsToNotify = [{
-               pT: [140, 240],
-               nT: [302, 240],
-               pin: {_name: 'A1', _direction: 'forward'}
-            },
+            pT: [140, 240],
+            nT: [302, 240],
+            pin: {_name: 'A1', _direction: 'forward'}
+         },
             {
                pT: [200, 256],
                nT: [370, 256],
@@ -191,10 +237,10 @@ describe('scout', function () {
          expect(orderedPair[0].pin._name === 'B1').to.be.equal(true)
 
          resolvedPinsToNotify = [{
-               pT: [216, 250],
-               nT: [328, 250],
-               pin: {_name: 'A2', _direction: 'forward'}
-            },
+            pT: [216, 250],
+            nT: [328, 250],
+            pin: {_name: 'A2', _direction: 'forward'}
+         },
             {
                pT: [284, 300],
                nT: [312, 300],
@@ -208,11 +254,11 @@ describe('scout', function () {
             nT: [328, 240],
             pin: {_name: 'A3b', _direction: 'backward'}
          },
-         {
-            pT: [302, 256],
-            nT: [140, 256],
-            pin: {_name: 'B3b', _direction: 'backward'}
-         }]
+            {
+               pT: [302, 256],
+               nT: [140, 256],
+               pin: {_name: 'B3b', _direction: 'backward'}
+            }]
          orderedPair = getOrderedPins(resolvedPinsToNotify)
          expect(orderedPair[0].pin._name === 'B3b').to.be.equal(true)
 
@@ -221,20 +267,14 @@ describe('scout', function () {
             nT: [179, 300],
             pin: {_name: 'B4b', _direction: 'backward'}
          },
-         {
-            pT: [265, 230],
-            nT: [151, 280],
-            pin: {_name: 'A4b', _direction: 'backward'}
-         }]
+            {
+               pT: [265, 230],
+               nT: [151, 280],
+               pin: {_name: 'A4b', _direction: 'backward'}
+            }]
          orderedPair = getOrderedPins(resolvedPinsToNotify)
          expect(orderedPair[0].pin._name === 'A4b').to.be.equal(true)
 
       })
-
-
-
-
    })
-
-
 })

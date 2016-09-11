@@ -1,8 +1,15 @@
 import Pin from './pin'
 import createState, {createInitialState} from './createState'
 import {unique, filterOverKeyValue} from './common'
-import {AXIS_X, AXIS_Y} from './constants'
-import {directionPredicates} from './predicates'
+import {AXIS_X, AXIS_Y, FORWARD, BACKWARD} from './constants'
+
+export const passesForward = (pv, ps, nv, ns) => (pv < ps) && (nv >= ns)
+export const passesBackward = (pv, ps, nv, ns) => (pv > ps) && (nv <= ns)
+
+export const directionPredicates = {
+   [FORWARD]: passesForward,
+   [BACKWARD]: passesBackward,
+}
 
 export const targetPoint = function (a1, a2, p, o) {
    return (a1 + a2 * p) + o
@@ -29,7 +36,7 @@ export const axisPair = function (axis, viewState, sceneState) {
       [[viewState.x1, viewState.x2], [sceneState.x1, sceneState.x2]]
 }
 
-export const enchancedPins = function (pinObj) {
+export const pinDetails = function (pinObj) {
    const {pT, nT} = pinObj
    const pDist = pT[1] - pT[0]
    const nDist = nT[0] - nT[1]
@@ -46,18 +53,6 @@ export const notificationOrder = function (pins) {
    return pins.sort(smallestDistRatioFirst)
 }
 
-export const resolveTargetPoint = function (pState, nState) {
-   return function (pin) {
-      const predicate = directionPredicates[pin._direction]
-      const prevStatePair = axisPair(pin._axis, pState.view, pState.scene)
-      const nextStatePair = axisPair(pin._axis, nState.view, nState.scene)
-      const pT = targetPointPair(prevStatePair[0], prevStatePair[1], pin)
-      const nT = targetPointPair(nextStatePair[0], nextStatePair[1], pin)
-      const notify = predicate(pT[0], pT[1], nT[0], nT[1])
-      return {pin, pT, nT, notify}
-   }
-}
-
 const someAxisX = someAxis(AXIS_X)
 const someAxisY = someAxis(AXIS_Y)
 
@@ -68,11 +63,9 @@ export default function scout(obsvr, view, scene, optns) {
       contextEnv,
       pins = {},
       pinSubscribers = [],
-      prevState,
       feedY = false,
       feedX = false,
       shouldRefreshBeforeUpdate = true,
-      initialized = false,
       cachedUpdate,
       debugging = false,
       contextDebugger
@@ -140,11 +133,6 @@ export default function scout(obsvr, view, scene, optns) {
       update()
    }
 
-   const initialize = function () {
-      prevState = createInitialState(contextEnv, feedX, feedY)
-      initialized = true
-   }
-
    const refreshProps = function () {
       const listeners = observer.getListeners()
       const types = listeners.map((l) => l.type)
@@ -156,6 +144,16 @@ export default function scout(obsvr, view, scene, optns) {
       feedY = someAxisY(listeners, pins)
       shouldRefreshBeforeUpdate = false
 
+      let envState
+
+      pinSubscribers.forEach((pin) => {
+         if (!pin._pT) {
+            envState = envState ? envState : createInitialState(contextEnv, feedX, feedY)
+            const prevStatePair = axisPair(pin._axis, envState.view, envState.scene)
+            pin._pT = targetPointPair(prevStatePair[0], prevStatePair[1], pin)
+         }
+      })
+
       const pinsToDebug = pinSubscribers.filter(pin => pin._debug)
 
       if (pinsToDebug.length > 0) {
@@ -164,15 +162,10 @@ export default function scout(obsvr, view, scene, optns) {
             contextDebugger.clearPins()
          }
          contextDebugger = contextEnv.debug(pinsToDebug)
-         if (!initialized) {
-            // make sure prevState exits before adding debug marks
-            initialize()
-         }
          cachedUpdate = !cachedUpdate ? updateScout : cachedUpdate
          updateScout = () => {
             cachedUpdate.apply(this, arguments)
-            // after cachedUpdate prevState is updated
-            contextDebugger.update(prevState)
+            contextDebugger.update()
          }
          updateScout()
       } else if (debugging) {
@@ -188,21 +181,36 @@ export default function scout(obsvr, view, scene, optns) {
       if (shouldRefreshBeforeUpdate) {
          refreshProps()
       }
-      if (!initialized) {
-         initialize()
-      }
 
       const nextState = createState(contextEnv, feedX, feedY)
-      const resolvedPins = pinSubscribers.map(resolveTargetPoint(prevState, nextState))
+      let resolvedPins = pinSubscribers.map((pin) => {
+         const pT = pin._pT
+         const predicate = directionPredicates[pin._direction]
+         const nextStatePair = axisPair(pin._axis, nextState.view, nextState.scene)
+         const nT = targetPointPair(nextStatePair[0], nextStatePair[1], pin)
+         const notify = predicate(pT[0], pT[1], nT[0], nT[1])
+         return {pin, pT, nT, notify}
+      })
+
+      resolvedPins.forEach((pinObj) => {
+         pinObj.pin._pT = pinObj.nT
+      })
+
       const resolvedPinsToNotify = resolvedPins.filter((resolvedPin) => resolvedPin.notify)
-      const pinsToNotify = resolvedPinsToNotify.map(enchancedPins)
+      const pinsToNotify = resolvedPinsToNotify.map(pinDetails)
       const ordered = pinsToNotify.length > 1 ? notificationOrder(pinsToNotify) : pinsToNotify
 
       ordered.forEach((resolvedPin) => {
-         notifyListeners(resolvedPin.pin._name, {})
+         const {pin} = resolvedPin
+         var evtObject = {
+            target: pin,
+            state: {view: pin._pT[0], scene: pin._pT[1]},
+            sceneViewDistance: resolvedPin.nDist,
+            move: resolvedPin.move,
+            axis: resolvedPin.pin._axis,
+         }
+         notifyListeners(resolvedPin.pin._name, evtObject)
       })
-
-      prevState = nextState
    }
 
    const update = function () {
