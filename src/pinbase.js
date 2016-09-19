@@ -17,14 +17,14 @@ class PinBase {
       }
    }
 
-   view(value, offset) {
-      this._view.position = _.isNumber(value) ? value : this._view.position
+   view(position, offset) {
+      this._view.position = _.isNumber(position) ? position : this._view.position
       this._view.offset = parseOffset(offset)
       return this
    }
 
-   scene(value, offset) {
-      this._scene.position = _.isNumber(value) ? value : this._scene.position
+   scene(position, offset) {
+      this._scene.position = _.isNumber(position) ? position : this._scene.position
       this._scene.offset = parseOffset(offset)
       return this
    }

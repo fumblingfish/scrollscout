@@ -27,14 +27,14 @@ class Pin extends PinBase {
       return this
    }
 
-   view(value, offset) {
-      super.view(value, offset)
+   view(position, offset) {
+      super.view(position, offset)
       this._pinChanges()
       return this
    }
 
-   scene(value, offset) {
-      super.scene(value, offset)
+   scene(position, offset) {
+      super.scene(position, offset)
       this._pinChanges()
       return this
    }
