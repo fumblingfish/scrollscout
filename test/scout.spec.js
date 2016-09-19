@@ -32,8 +32,9 @@ describe('scout', function () {
 
       it('should return false if pin already exists', () => {
          const sc = scrollscout.create()
-         sc.addPin('A')
-         expect(sc.addPin('A')).to.be.equal(false)
+         const a1 = sc.addPin('A')
+         const a2 = sc.addPin('A')
+         expect(a1).to.deep.equal(a2)
       })
 
    })
