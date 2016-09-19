@@ -77,6 +77,10 @@ export default function scout(obsvr, view, scene, optns) {
    }
 
    const addListener = function (pinName, fn) {
+      if (!pins[pinName]){
+         console.warn(`addListener could not find a Pin with name ${pinName}` );
+         return
+      }
       shouldRefreshBeforeUpdate = true
       return observer.addListener(pinName, fn)
    }
