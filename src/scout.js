@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import Pin from './pin'
-import createState from './createState'
+import createState, {createInitialState} from './createState'
 import {unique, filterOverKeyValue} from './common'
 import {AXIS_X, AXIS_Y, FORWARD, BACKWARD} from './constants'
 
@@ -152,7 +152,7 @@ export default function scout(obsvr, view, scene, optns) {
 
       pinSubscribers.forEach((pin) => {
          if (!pin._pT) {
-            envState = envState ? envState : createState(contextEnv, feedX, feedY)
+            envState = envState ? envState : createInitialState(contextEnv, feedX, feedY)
             const prevStatePair = axisPair(pin._axis, envState.view, envState.scene)
             pin._pT = targetPointPair(prevStatePair[0], prevStatePair[1], pin)
          }
