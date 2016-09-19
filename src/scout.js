@@ -98,7 +98,10 @@ export default function scout(obsvr, view, scene, optns) {
    }
 
    const addPin = function (pinName) {
-      if (pins[pinName]) return false
+      if (pins[pinName]){
+         console.warn(`Pin name must be unique. ${pinName} is already added` );
+         return pins[pinName]
+      }
       const pin = new Pin(pinName, _scoutInternal)
       pins[pinName] = pin
       return pin
