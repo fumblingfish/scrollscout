@@ -52,6 +52,7 @@ describe('scout', function () {
       it('should remove a Pin', () => {
          const sc = scrollscout.create()
          sc.addPin('A')
+         sc.addPin('B')
          sc.addListener('A', () => {})
          sc.addListener('A', () => {})
          sc.addListener('B', () => {})
