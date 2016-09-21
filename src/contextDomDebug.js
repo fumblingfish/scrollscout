@@ -58,7 +58,6 @@ const createMarker = function (targetType, pin) {
    line.style[axisStyle.sides[dir]] = '0px'
    line.style[axisStyle.size[0]] = '1px'
    line.style[axisStyle.size[1]] = '80px'
-   //line.style.boxShadow = '0px 0px 1px rgba(0, 0, 0, 0.5)'
 
    title.style.position = 'absolute'
    title.style[axisStyle.orientation] = '5px'
@@ -69,7 +68,6 @@ const createMarker = function (targetType, pin) {
    marker.style.zIndex = 100000
    marker.style.color = pin._debugColor
    marker.style.pointerEvents = 'none'
-   //marker.style.textShadow = '0px 0px 2px rgba(0, 0, 0, 0.5)'
 
    return {marker, line, title, dirPointer}
 }
@@ -106,6 +104,7 @@ const styleMarkerScene = function (markObj, pin) {
 const createDebugContainer = function () {
    const debugContainer = document.createElement('div')
    debugContainer.id = `__scrollscout_debug__container_${uid()}`
+   debugContainer.className = "__scrollscout_debug__container"
    debugContainer.style.position = 'fixed'
    debugContainer.style.zIndex = 9999999
    debugContainer.style.pointerEvents = 'none'
@@ -123,7 +122,7 @@ const colorPin = function (pin) {
    return pin
 }
 
-export const contextDebug = function (viewElement, sceneElement, pins) {
+export const contextDebug = function (viewElement) {
    const contextDom = this,
       isViewWindow = viewElement === window
 
@@ -135,22 +134,27 @@ export const contextDebug = function (viewElement, sceneElement, pins) {
       debugContainer.style.right = '0px'
       debugContainer.style.bottom = '0px'
    }
-   pins.forEach(function (pin) {
-      colorPin(pin)
-      const markerView = createMarker('view', pin)
-      const markerScene = createMarker('scene', pin)
-      pin.__debugViewMarker = styleMarkerView(markerView, pin)
-      pin.__debugSceneMarker = styleMarkerScene(markerScene, pin)
-      debugContainer.appendChild(pin.__debugViewMarker)
-      debugContainer.appendChild(pin.__debugSceneMarker)
-      if (!isViewWindow) {
-         pin.__debugViewMarker.style.position = 'absolute'
-         pin.__debugSceneMarker.style.position = 'absolute'
-      }
-   })
+
    document.body.appendChild(debugContainer)
    return {
-      update(){
+      addPins(pins){
+         pins.forEach(function (pin) {
+            colorPin(pin)
+            const markerView = createMarker('view', pin)
+            const markerScene = createMarker('scene', pin)
+            pin.__debugViewMarker = styleMarkerView(markerView, pin)
+            pin.__debugSceneMarker = styleMarkerScene(markerScene, pin)
+            debugContainer.appendChild(pin.__debugViewMarker)
+            debugContainer.appendChild(pin.__debugSceneMarker)
+
+
+            if (!isViewWindow) {
+               pin.__debugViewMarker.style.position = 'absolute'
+               pin.__debugSceneMarker.style.position = 'absolute'
+            }
+         })
+      },
+      update(pins){
          pins.forEach(function (pin) {
             const axisStyle = propMap[pin._axis]
             const nT = pin._pT
@@ -172,7 +176,6 @@ export const contextDebug = function (viewElement, sceneElement, pins) {
                debugContainer.style.left = px(viewElement.getBoundingClientRect().left)
                debugContainer.style.width = px(contextDom.view.width())
                debugContainer.style.height = px(contextDom.view.height())
-
             }
          })
       },
@@ -184,6 +187,14 @@ export const contextDebug = function (viewElement, sceneElement, pins) {
       },
       clearAll(){
          document.body.removeChild(debugContainer)
+      },
+      cleanUp(pins){
+         if(!pins) return
+         pins.forEach(function(pin){
+            if(!pin._debug && pin.__debugViewMarker instanceof HTMLElement){
+              debugContainer.removeChild(pin.__debugViewMarker)
+            }
+         })
       }
    }
 

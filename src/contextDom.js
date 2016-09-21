@@ -47,7 +47,7 @@ export default function (viewElement, sceneElement, scout) {
    return {
       view: contextView,
       scene: contextScene,
-      debug(pinsToDebug){
+      debug(){
          if (viewElement instanceof HTMLElement && !debugging) {
             const update = updateFn ? updateFn : updateHandler
             window.removeEventListener('scroll', update)
@@ -56,15 +56,15 @@ export default function (viewElement, sceneElement, scout) {
             window.addEventListener('resize', update)
          }
          debugging = true
-         return contextDebug.call(this, viewElement, sceneElement, pinsToDebug)
+         return contextDebug.call(this, viewElement, sceneElement)
       },
-      debugStop(contextDebugger){
+      debugStop(){
          if (viewElement instanceof HTMLElement && debugging) {
             const update = updateFn ? updateFn : updateHandler
             window.removeEventListener('scroll', update)
             window.removeEventListener('resize', update)
          }
-         contextDebugger.clearAll()
+         debugging = false
       },
       run: startUpdater,
       stop: stopUpdater

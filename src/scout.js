@@ -168,19 +168,25 @@ export default function scout(obsvr, view, scene, optns) {
          debugging = true
          if (contextDebugger) {
             contextDebugger.clearPins()
+         }else{
+            contextDebugger = contextEnv.debug()
          }
-         contextDebugger = contextEnv.debug(pinsToDebug)
+         contextDebugger.addPins(pinsToDebug)
          cachedUpdate = !cachedUpdate ? updateScout : cachedUpdate
          updateScout = () => {
             cachedUpdate.apply(this, arguments)
-            contextDebugger.update()
+            contextDebugger.update(pinsToDebug)
          }
          updateScout()
       } else if (debugging) {
          debugging = false
-         contextEnv.debugStop(contextDebugger)
+         contextEnv.debugStop()
          updateScout = cachedUpdate
          cachedUpdate = null
+         contextDebugger.clearPins()
+      }
+      if(contextDebugger){
+         contextDebugger.cleanUp(pinsToDebug)
       }
    }
 
