@@ -8,7 +8,8 @@ const defaultOptions = {
    context: (typeof window !== 'undefined') ? contextDom : Function.prototype
 }
 
-const create = function (view, scene, options) {
+const create = function (scene, view, options) {
+   view = (_.isNil(view) && (typeof window !== 'undefined')) ? window : view
    const optns = _.assign(defaultOptions, options)
    return scout(observer(), view, scene, optns)
 }
