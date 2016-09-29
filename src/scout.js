@@ -7,6 +7,8 @@ import {AXIS_X, AXIS_Y, FORWARD, BACKWARD} from './constants'
 export const passesForward = (pv, ps, nv, ns) => (pv < ps) && (nv >= ns)
 export const passesBackward = (pv, ps, nv, ns) => (pv > ps) && (nv <= ns)
 
+const NONAME = '_noname_'
+
 export const directionPredicates = {
    [FORWARD]: passesForward,
    [BACKWARD]: passesBackward,
@@ -69,7 +71,8 @@ export default function scout(obsvr, view, scene, optns) {
       shouldRefreshBeforeUpdate = true,
       cachedUpdate,
       debugging = false,
-      contextDebugger
+      contextDebugger,
+      noPinNameCount = 0
 
 
    const pinChanges = function () {
@@ -102,6 +105,7 @@ export default function scout(obsvr, view, scene, optns) {
    }
 
    const addPin = function (pinName) {
+      pinName = _.isNil(pinName) ? NONAME + (noPinNameCount++) : pinName
       if (pins[pinName]){
          console.warn(`Pin name must be unique. ${pinName} is already added` );
          return pins[pinName]
@@ -231,8 +235,8 @@ export default function scout(obsvr, view, scene, optns) {
       updateScout()
    }
 
-   const run = function (exposeUpdateFn) {
-      contextEnv.run(exposeUpdateFn)
+   const start = function (updateFn) {
+      contextEnv.start(updateFn)
    }
 
    const stop = function () {
@@ -266,7 +270,7 @@ export default function scout(obsvr, view, scene, optns) {
       removePin,
       isDebugging,
       debug,
-      run,
+      start,
       stop
    }
 }

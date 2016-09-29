@@ -66,7 +66,7 @@ export default function (viewElement, sceneElement, scout) {
          }
          debugging = false
       },
-      run: startUpdater,
+      start: startUpdater,
       stop: stopUpdater
    }
 }
