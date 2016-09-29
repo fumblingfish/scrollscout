@@ -11,7 +11,6 @@ class Pin extends PinBase {
       this._debug = false
       this._pinChanges = scoutRef.pinChanges
       this.subscribe = (fn) => {
-         this._pT = null
          return scoutRef.addListener(this._name, fn)
       }
       this.destroy = () => scoutRef.removePin(this._name)

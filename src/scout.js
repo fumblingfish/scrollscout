@@ -65,7 +65,7 @@ export default function scout(obsvr, view, scene, optns) {
       options = optns,
       contextEnv,
       pins = {},
-      pinSubscribers = [],
+      pinsToUpdate = [],
       feedY = false,
       feedX = false,
       shouldRefreshBeforeUpdate = true,
@@ -147,18 +147,16 @@ export default function scout(obsvr, view, scene, optns) {
 
    const refreshProps = function () {
       const listeners = observer.getListeners()
-      const types = _.map(listeners, (l) => l.type)
-      const uniqueSubscribers = _.filter(types, unique(types))
 
       //refresh
-      pinSubscribers = filterOverKeyValue(pins, uniqueSubscribers)
+      pinsToUpdate = _.valuesIn(pins, (pin) => pin)
       feedX = someAxisX(listeners, pins)
       feedY = someAxisY(listeners, pins)
       shouldRefreshBeforeUpdate = false
 
       let envState
 
-      pinSubscribers.forEach((pin) => {
+      pinsToUpdate.forEach((pin) => {
          if (!pin._pT) {
             envState = envState ? envState : createInitialState(contextEnv, feedX, feedY)
             const prevStatePair = axisPair(pin._axis, envState.view, envState.scene)
@@ -166,7 +164,7 @@ export default function scout(obsvr, view, scene, optns) {
          }
       })
 
-      const pinsToDebug = _.filter(pinSubscribers, pin => pin._debug)
+      const pinsToDebug = _.filter(pinsToUpdate, pin => pin._debug)
 
       if (pinsToDebug.length > 0) {
          debugging = true
@@ -201,7 +199,7 @@ export default function scout(obsvr, view, scene, optns) {
       }
 
       const nextState = createState(contextEnv, feedX, feedY)
-      let resolvedPins = _.map(pinSubscribers, (pin) => {
+      let resolvedPins = _.map(pinsToUpdate, (pin) => {
          const pT = pin._pT
          const predicate = directionPredicates[pin._direction]
          const nextStatePair = axisPair(pin._axis, nextState.view, nextState.scene)

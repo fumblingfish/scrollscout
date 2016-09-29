@@ -14,7 +14,7 @@ const create = function (scene, view, options) {
    return scout(observer(), view, scene, optns)
 }
 
-const version = VERSION
+const version = (typeof VERSION !== 'undefined') ? VERSION : null
 
 module.exports = {
    create,
