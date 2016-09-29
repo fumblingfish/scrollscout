@@ -14,4 +14,9 @@ const create = function (scene, view, options) {
    return scout(observer(), view, scene, optns)
 }
 
-module.exports = {create}
+const version = VERSION
+
+module.exports = {
+   create,
+   version
+}

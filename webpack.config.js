@@ -5,9 +5,13 @@ var env = require('yargs').argv.mode
 
 var build = env === 'build'
 
+var version = new webpack.DefinePlugin({
+  VERSION: JSON.stringify(require('./package.json').version)
+})
+
 var libname = 'scrollscout'
 var ext = build ? '.min.js' : '.js'
-var plugins  = build ? [new UglifyJsPlugin({ minimize: true })] : []
+var plugins  = build ? [new UglifyJsPlugin({ minimize: true }), version] : [version]
 
 
 module.exports = {
