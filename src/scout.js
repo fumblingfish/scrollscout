@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import Pin from './pin'
 import createState, {createInitialState} from './createState'
-import {unique, filterOverKeyValue} from './common'
 import {AXIS_X, AXIS_Y, FORWARD, BACKWARD} from './constants'
 
 export const passesForward = (pv, ps, nv, ns) => (pv < ps) && (nv >= ns)
@@ -66,8 +65,8 @@ export default function scout(obsvr, view, scene, optns) {
       contextEnv,
       pins = {},
       pinsToUpdate = [],
-      feedY = false,
-      feedX = false,
+      hasAxisY = false,
+      hasAxisX = false,
       shouldRefreshBeforeUpdate = true,
       cachedUpdate,
       debugging = false,
@@ -121,6 +120,8 @@ export default function scout(obsvr, view, scene, optns) {
       _.forEach(listenersWithPinName, (lsnr) => {
          observer.removeListenerById(lsnr.id)
       })
+      shouldRefreshBeforeUpdate = true
+      pinsToUpdate = _.filter(pinsToUpdate, (pin) => pin._name !== pinName)
       return delete pins[pinName]
    }
 
@@ -150,15 +151,17 @@ export default function scout(obsvr, view, scene, optns) {
 
       //refresh
       pinsToUpdate = _.valuesIn(pins, (pin) => pin)
-      feedX = someAxisX(listeners, pins)
-      feedY = someAxisY(listeners, pins)
+      hasAxisX = someAxisX(listeners, pins)
+      hasAxisY = someAxisY(listeners, pins)
       shouldRefreshBeforeUpdate = false
+
+
 
       let envState
 
       pinsToUpdate.forEach((pin) => {
          if (!pin._pT) {
-            envState = envState ? envState : createInitialState(contextEnv, feedX, feedY)
+            envState = envState ? envState : createInitialState(contextEnv, hasAxisX, hasAxisY)
             const prevStatePair = axisPair(pin._axis, envState.view, envState.scene)
             pin._pT = targetPointPair(prevStatePair[0], prevStatePair[1], pin)
          }
@@ -190,6 +193,7 @@ export default function scout(obsvr, view, scene, optns) {
       if(contextDebugger){
          contextDebugger.cleanUp(pinsToDebug)
       }
+
    }
 
    var updateScout = function () {
@@ -198,7 +202,7 @@ export default function scout(obsvr, view, scene, optns) {
          refreshProps()
       }
 
-      const nextState = createState(contextEnv, feedX, feedY)
+      const nextState = createState(contextEnv, hasAxisX, hasAxisY)
       let resolvedPins = _.map(pinsToUpdate, (pin) => {
          const pT = pin._pT
          const predicate = directionPredicates[pin._direction]
@@ -233,8 +237,8 @@ export default function scout(obsvr, view, scene, optns) {
       updateScout()
    }
 
-   const start = function (updateFn) {
-      contextEnv.start(updateFn)
+   const start = function (resizeUpdateFn, scrollUpdateFn) {
+      contextEnv.start(resizeUpdateFn, scrollUpdateFn)
    }
 
    const stop = function () {

@@ -80,7 +80,6 @@ const styleMarkerView = function (markObj, pin) {
    title.style[axisStyle.sides[dir]] = '15px'
    title.style.width = '100px'
    title.style.textAlign = axisStyle.sides[dir]
-   dirPointer.innerHTML = axisStyle.arrowChar[dir]
    dirPointer.style[axisStyle.sides[dir]] = '60px'
    return markObj.marker
 }

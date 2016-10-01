@@ -12,7 +12,8 @@ import {
 export default function (viewElement, sceneElement, scout) {
    var contextView,
       contextScene,
-      updateFn,
+      resizeUpdateFn,
+      scrollUpdateFn,
       debugging
 
    if (typeof window !== 'undefined') {
@@ -31,17 +32,18 @@ export default function (viewElement, sceneElement, scout) {
       scout.update()
    }
 
-   const startUpdater = function (exposeUpdateFn) {
-      updateFn = _.isFunction(exposeUpdateFn) ? exposeUpdateFn(updateHandler) : updateHandler
-      viewElement.removeEventListener('scroll', updateFn)
-      viewElement.removeEventListener('resize', updateFn)
-      viewElement.addEventListener('scroll', updateFn)
-      viewElement.addEventListener('resize', updateFn)
+   const startUpdate = function (userResizeUpdateFn, userScrollUpdateFn) {
+      resizeUpdateFn = _.isFunction(userResizeUpdateFn) ? userResizeUpdateFn(updateHandler) : updateHandler
+      scrollUpdateFn = _.isFunction(userScrollUpdateFn) ? userScrollUpdateFn(updateHandler) : updateHandler
+      viewElement.removeEventListener('scroll', scrollUpdateFn)
+      viewElement.removeEventListener('resize', resizeUpdateFn)
+      viewElement.addEventListener('scroll', scrollUpdateFn)
+      viewElement.addEventListener('resize', resizeUpdateFn)
    }
 
-   const stopUpdater = function () {
-      viewElement.removeEventListener('scroll', updateFn)
-      viewElement.removeEventListener('resize', updateFn)
+   const stopUpdate = function () {
+      viewElement.removeEventListener('scroll', scrollUpdateFn)
+      viewElement.removeEventListener('resize', resizeUpdateFn)
    }
 
    return {
@@ -49,25 +51,27 @@ export default function (viewElement, sceneElement, scout) {
       scene: contextScene,
       debug(){
          if (viewElement instanceof HTMLElement && !debugging) {
-            const update = updateFn ? updateFn : updateHandler
-            window.removeEventListener('scroll', update)
-            window.removeEventListener('resize', update)
-            window.addEventListener('scroll', update)
-            window.addEventListener('resize', update)
+            const resizeUpdate = resizeUpdateFn ? resizeUpdateFn : updateHandler
+            const scrollUpdate = scrollUpdateFn ? scrollUpdateFn : updateHandler
+            window.removeEventListener('scroll', scrollUpdate)
+            window.removeEventListener('resize', resizeUpdate)
+            window.addEventListener('scroll', scrollUpdate)
+            window.addEventListener('resize', resizeUpdate)
          }
          debugging = true
          return contextDebug.call(this, viewElement, sceneElement)
       },
       debugStop(){
          if (viewElement instanceof HTMLElement && debugging) {
-            const update = updateFn ? updateFn : updateHandler
-            window.removeEventListener('scroll', update)
-            window.removeEventListener('resize', update)
+            const resizeUpdate = resizeUpdateFn ? resizeUpdateFn : updateHandler
+            const scrollUpdate = scrollUpdateFn ? scrollUpdateFn : updateHandler
+            window.removeEventListener('scroll', scrollUpdate)
+            window.removeEventListener('resize', resizeUpdate)
          }
          debugging = false
       },
-      start: startUpdater,
-      stop: stopUpdater
+      start: startUpdate,
+      stop: stopUpdate
    }
 }
 
