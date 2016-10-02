@@ -1,0 +1,93 @@
+@keyframes rotateCube {
+    from {
+        transform: rotateX(0deg) rotateY(0deg);
+    }
+    to {
+        transform: rotateX(360deg) rotateY(360deg);
+    }
+}
+
+.cube-container {
+    perspective: 300px;
+
+    transform-style: preserve-3d;
+    position: absolute;
+    top: 50%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(-3vh);
+}
+
+.cube {
+    position: relative;
+    margin: 0 auto;
+    transition: transform 2s linear;
+    transform-style: preserve-3d;
+    animation: rotateCube 6s infinite linear;
+    animation-play-state:paused;
+
+}
+
+.cube.animate {
+    animation-play-state:running;
+}
+
+.face {
+    position: absolute;
+    background-color: rgba(69, 1, 72,0.7);
+    transition: background-color 0.3s ease;
+}
+
+.cube.animate .face{
+    background-color: rgba(70, 63, 255, 0.7);
+}
+
+.face__inner{
+    position: absolute;
+    display:block;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    border: 2px solid #fff;
+}
+
+.face:nth-child(1) {
+    transform: translateZ(3vh);
+
+}
+
+.face:nth-child(2) {
+    transform: rotateY(90deg) translateZ(3vh);
+}
+
+.face:nth-child(3) {
+    transform: rotateY(180deg) translateZ(3vh);
+}
+
+.face:nth-child(4) {
+    transform: rotateY(-90deg) translateZ(3vh);
+}
+
+.face:nth-child(5) {
+    transform: rotateX(-90deg) translateZ(3vh) rotate(180deg);
+}
+
+.face:nth-child(6) {
+    transform: rotateX(90deg) translateZ(3vh);
+}
+
+
+@media screen and (max-width: 680px) {
+
+    .touchevents .cube{
+        animation-play-state:running;
+        opacity: 0.2;
+    }
+
+    .touchevents .cube.animate{
+        opacity: 1;
+    }
+
+}

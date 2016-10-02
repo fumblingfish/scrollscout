@@ -1,0 +1,106 @@
+*{
+  box-sizing: border-box;
+}
+
+html, body{
+  height:100%;
+  background:#450148;
+}
+
+body{
+  font-family: Consolas, Menlo, Monaco, monospace;
+  /*-webkit-overflow-scrolling: touch;*/
+}
+
+.root,.app{
+  height: 100%;
+}
+
+.appheader{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  height:25%;
+  z-index: 800;
+}
+
+.appheader__scoutlogo-container{
+  width:300px;
+  margin: 30px auto 0;
+  margin: 7vh auto 0;
+}
+
+.appfooter{
+  position: fixed;
+  left:10px;
+  bottom:10px;
+  font-size: 13px;
+  color:rgba(255,255,255,0.4)
+}
+
+.footer{
+  position: fixed;
+  bottom:0;
+  z-index: 200;
+  width: 100%;
+}
+
+.hl{
+  color:#fff;
+}
+
+
+.scoutlogo{
+  stroke: #fff;
+  fill:#fff;
+  stroke-width:0;
+
+}
+
+.navigation{
+  margin-top: 2vh;
+  text-align: center;
+  position: absolute;
+  top:0;
+  right:20px;
+  width: 120px;
+}
+
+.navigation .btn-outline{
+  min-width:110px;
+  margin: 10px;
+}
+
+.btn, .btn-outline{
+  background: transparent;
+  font-family: Consolas, Menlo, Monaco, monospace;
+  color:rgba(255,255,255,0.4);
+  border:none;
+  font-size: 13px;
+  padding:4px 14px;
+  cursor: pointer;
+  outline:none;
+  text-decoration: none;
+}
+
+.btn.active{
+  color:#fff;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.4);
+  padding: 12px 20px;
+  display: inline-block;
+  color:#fff;
+}
+
+
+@media screen and (max-width: 680px) {
+  .navigation{
+    position: static;
+    width: 100%;
+  }
+}
+

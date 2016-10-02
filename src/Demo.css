@@ -1,0 +1,334 @@
+.demo {
+    height: 100%;
+}
+
+.page {
+    height: 155%;
+    position: relative;
+    z-index: 100;
+    padding-top: 30%;
+}
+
+.scene {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -6vh;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 90px;
+    perspective: 200px;
+    perspective-origin: 50% 50%;
+    transform-style: preserve-3d;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.scene__subject {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 60%;
+    height: 60%;
+    margin-top: -30%;
+    margin-left: -30%;
+    border: 2px solid #fff;
+    animation: spin infinite 3s linear;
+    animation-play-state: paused;
+}
+
+.scene__subject.animate {
+    animation-play-state: running;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 25%;
+    z-index: 800;
+}
+
+.header__scoutlogo-container {
+    width: 300px;
+    margin: 30px auto 0;
+    margin: 7vh auto 0;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    z-index: 200;
+    width: 100%;
+}
+
+.scoutlogo {
+    transition: 0.6s ease;
+    stroke: #fff;
+    fill: #fff;
+    stroke-width: 0;
+}
+
+.monitor, .monitor-background {
+    position: fixed;
+    top: 25%;
+    bottom: 25%;
+    left: 20%;
+    right: 20%;
+    z-index: 300;
+}
+
+.monitor-background {
+    z-index: 0;
+    background: #463fff;
+}
+
+.monitor__inner {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 10%;
+    right: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.monitor__note {
+    display: block;
+    flex: 1;
+    color: #fff;
+    margin: 0 auto;
+    text-align: center;
+    width: 80%;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+    padding-bottom: 1em;
+}
+
+.monitor .btn-outline {
+    margin-top: 10px;
+}
+
+.offset-guide {
+    position: absolute;
+    border-top: 1px dashed rgba(255, 255, 255, 0.5);
+    width: 100%;
+}
+
+.offset-guide--top {
+    top: 0;
+}
+
+.offset-guide--bottom {
+    bottom: 0;
+}
+
+.monitor-active .monitor__note {
+    opacity: 0;
+}
+
+.code-ex {
+    position: absolute;
+    color: #5683FF;
+    font-size: 13px;
+}
+
+.code-ex--a {
+    left: 0;
+    bottom: 100%;
+}
+
+.code-ex--c {
+    left: 0;
+    top: 100%;
+}
+
+.code-ex--b {
+    right: 0;
+    bottom: 100%;
+}
+
+.code-ex--d {
+    right: 0;
+    top: 100%;
+}
+
+.code-ex pre {
+    margin: 10px 0;
+}
+
+.hl {
+    color: #fff;
+}
+
+.code-ex__line {
+    display: block;
+}
+
+.controls {
+    position: absolute;
+    bottom: 20px;
+    z-index: 10000;
+}
+
+.controls--subscribe {
+    right: 2%;
+}
+
+.controls--reset {
+    left: 2%;
+}
+
+.slider-container {
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 6vh;
+}
+
+.slider-controls {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.scrollscout-slider.rc-slider {
+    height: 2px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.scrollscout-slider .rc-slider-track {
+    height: 2px;
+    background: transparent;
+}
+
+.scrollscout-slider .rc-slider-track:after {
+    content: ' ';
+    display: block;
+    position: absolute;
+    height: 2px;
+    background: #fff;
+    left: 0;
+    right: 20px;
+}
+
+.scrollscout-slider .rc-slider-handle {
+    width: 40px;
+    height: 40px;
+    margin-left: -20px;
+    margin-top: -18px;
+    background: transparent;
+    border: 2px solid #fff;
+}
+
+.scrollscout-slider .rc-slider-handle:hover {
+    border-color: #fff;
+}
+
+.scrollscout-slider .rc-slider-step {
+    height: 1px;
+}
+
+.btn-exitdemo {
+    position: fixed;
+    top: 20px;
+    left: 2%;
+    z-index: 6000;
+}
+
+@media screen and (max-width: 680px) {
+
+    .touchevents .scene__subject {
+        transition: opacity 0.4s ease;
+        opacity: 0;
+    }
+
+    .touchevents .scene__subject.animate {
+        opacity: 1;
+    }
+
+    .touchevents .monitor__note {
+        font-size: 11px;
+    }
+
+    .touchevents .code-ex {
+        display: none;
+    }
+
+    .touchevents .appheader__scoutlogo-container {
+        margin: 20px auto;
+    }
+
+    .touchevents .scoutlogo {
+        width: 200px;
+        margin: 0 auto;
+        display: block;
+    }
+
+    .touchevents .monitor, .monitor-background {
+        left: 16%;
+        right: 16%;
+    }
+
+    .touchevents .slider-container {
+        margin-bottom: 2vh;
+    }
+
+    .touchevents .footer {
+        z-index: 6000;
+    }
+
+    .touchevents .controls--subscribe .btn {
+        border: 1px solid #fff;
+    }
+
+    .touchevents .btn-subscribe--a {
+        position: fixed;
+        left: 8px;
+        top: 20px;
+    }
+
+    .touchevents .btn-subscribe--b {
+        position: fixed;
+        right: 8px;
+        top: 20px;
+    }
+
+    .touchevents .btn-subscribe--c {
+        position: fixed;
+        left: 8px;
+        bottom: 20px;
+    }
+
+    .touchevents .btn-subscribe--d {
+        position: fixed;
+        right: 8px;
+        bottom: 20px;
+    }
+
+    .touchevents .controls--reset {
+        display: none;
+    }
+
+    .touchevents .controls--subscribe {
+        display: none;
+    }
+
+    .touchevents .demo {
+        overflow: scroll;
+    }
+
+    .touchevents .__scrollscout_debug__container {
+        display: none;
+    }
+
+}
+
