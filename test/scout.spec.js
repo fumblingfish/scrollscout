@@ -30,7 +30,7 @@ describe('scout', function () {
          expect(pin).to.be.an.instanceof(Pin)
       })
 
-      it('should return false if pin already exists', () => {
+      it('should return same pin if pin already exists', () => {
          const sc = scrollscout.create()
          const a1 = sc.addPin('A')
          const a2 = sc.addPin('A')
@@ -53,11 +53,11 @@ describe('scout', function () {
          const sc = scrollscout.create()
          sc.addPin('A')
          sc.addPin('B')
-         sc.addListener('A', () => {})
-         sc.addListener('A', () => {})
-         sc.addListener('B', () => {})
+         sc._addListener('A', () => {})
+         sc._addListener('A', () => {})
+         sc._addListener('B', () => {})
          sc.removePin('A')
-         const allListeners = sc.getListeners()
+         const allListeners = sc._getListeners()
          expect(allListeners.length).to.be.equal(1)
       })
 
@@ -68,17 +68,23 @@ describe('scout', function () {
          const pin = sc.getPin('A')
          expect(pin).to.be.undefined
       })
+
+      it('should return false if no pin name is passed', () => {
+         const sc = scrollscout.create()
+         const p = sc.addPin()
+         expect(p).to.be.equal(false)
+      })
    })
 
-   describe('notifyListeners', function () {
+   describe('_notifyListeners', function () {
       it('should notify subscribers', () => {
          var value = 0
          const sc = scrollscout.create()
          const pin = sc.addPin('A')
          pin.subscribe(() => value++)
-         sc.notifyListeners('B')
+         sc._notifyListeners('B')
          expect(value).to.be.equal(0)
-         sc.notifyListeners('A')
+         sc._notifyListeners('A')
          expect(value).to.be.equal(1)
       })
 
@@ -86,25 +92,25 @@ describe('scout', function () {
          var value = 0
          const sc = scrollscout.create()
          sc.addPin('A')
-         sc.addListener('A', () => value++)
-         sc.notifyListeners('B')
+         sc._addListener('A', () => value++)
+         sc._notifyListeners('B')
          expect(value).to.be.equal(0)
-         sc.notifyListeners('A')
+         sc._notifyListeners('A')
          expect(value).to.be.equal(1)
       })
    })
 
 
-   describe('addListeners', function () {
+   describe('_addListeners', function () {
       it('should add listeners and return unsubscriber function', () => {
          var value = 0, unsub
          const sc = scrollscout.create()
          sc.addPin('A')
-         unsub = sc.addListener('A', () => value++)
-         sc.notifyListeners('A')
+         unsub = sc._addListener('A', () => value++)
+         sc._notifyListeners('A')
          expect(value).to.be.equal(1)
          unsub()
-         sc.notifyListeners('A')
+         sc._notifyListeners('A')
          expect(value).to.be.equal(1)
       })
    })
@@ -115,11 +121,11 @@ describe('scout', function () {
          const fn = () => value++
          const sc = scrollscout.create()
          sc.addPin('A')
-         var unsub = sc.addListener('A', fn)
-         sc.notifyListeners('A')
+         var unsub = sc._addListener('A', fn)
+         sc._notifyListeners('A')
          expect(value).to.be.equal(1)
-         sc.removeListener(unsub)
-         sc.notifyListeners('A')
+         sc._removeListener(unsub)
+         sc._notifyListeners('A')
          expect(value).to.be.equal(1)
       })
    })

@@ -6,8 +6,6 @@ import {AXIS_X, AXIS_Y, FORWARD, BACKWARD} from './constants'
 export const passesForward = (pv, ps, nv, ns) => (pv < ps) && (nv >= ns)
 export const passesBackward = (pv, ps, nv, ns) => (pv > ps) && (nv <= ns)
 
-const NONAME = '_noname_'
-
 export const directionPredicates = {
    [FORWARD]: passesForward,
    [BACKWARD]: passesBackward,
@@ -70,17 +68,15 @@ export default function scout(obsvr, view, scene, optns) {
       shouldRefreshBeforeUpdate = true,
       cachedUpdate,
       debugging = false,
-      contextDebugger,
-      noPinNameCount = 0
-
+      contextDebugger;
 
    const pinChanges = function () {
       shouldRefreshBeforeUpdate = true
    }
 
    const addListener = function (pinName, fn) {
-      if (!pins[pinName]){
-         console.warn(`addListener could not find a Pin with name ${pinName}` );
+      if (!pins[pinName]) {
+         console.warn(`addListener could not find a Pin with name ${pinName}`)
          return
       }
       shouldRefreshBeforeUpdate = true
@@ -104,9 +100,12 @@ export default function scout(obsvr, view, scene, optns) {
    }
 
    const addPin = function (pinName) {
-      pinName = _.isNil(pinName) ? NONAME + (noPinNameCount++) : pinName
-      if (pins[pinName]){
-         console.warn(`Pin name must be unique. ${pinName} is already added` );
+      if(_.isNil(pinName)){
+         console.warn(`name must be a string. see addPin`)
+         return false
+      }
+      if (pins[pinName]) {
+         console.warn(`Pin name must be unique. ${pinName} is already added`)
          return pins[pinName]
       }
       const pin = new Pin(pinName, _scoutInternal)
@@ -155,8 +154,6 @@ export default function scout(obsvr, view, scene, optns) {
       hasAxisY = someAxisY(listeners, pins)
       shouldRefreshBeforeUpdate = false
 
-
-
       let envState
 
       pinsToUpdate.forEach((pin) => {
@@ -173,7 +170,7 @@ export default function scout(obsvr, view, scene, optns) {
          debugging = true
          if (contextDebugger) {
             contextDebugger.clearPins()
-         }else{
+         } else {
             contextDebugger = contextEnv.debug()
          }
          contextDebugger.addPins(pinsToDebug)
@@ -190,10 +187,9 @@ export default function scout(obsvr, view, scene, optns) {
          cachedUpdate = null
          contextDebugger.clearPins()
       }
-      if(contextDebugger){
+      if (contextDebugger) {
          contextDebugger.cleanUp(pinsToDebug)
       }
-
    }
 
    var updateScout = function () {
@@ -261,18 +257,22 @@ export default function scout(obsvr, view, scene, optns) {
    contextEnv = options.context(view, scene, _scoutInternal)
 
    return {
+
+      // scrollscout api
       addPin,
-      addListener,
-      removeListener,
-      removeAllListeners,
-      getListeners,
-      notifyListeners,
-      update,
-      getPin,
       removePin,
-      isDebugging,
+      getPin,
+      update,
       debug,
       start,
-      stop
+      stop,
+
+      // private
+      _addListener: addListener,
+      _removeListener: removeListener,
+      _removeAllListeners: removeAllListeners,
+      _getListeners: getListeners,
+      _isDebugging: isDebugging,
+      _notifyListeners: notifyListeners,
    }
 }
