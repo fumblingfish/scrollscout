@@ -258,7 +258,7 @@ class Demo extends Component {
       return (
          <div className="monitor__inner">
             <dev className={cx("monitor__note")}>
-               <p>Scroll and resize</p>
+               <p>Scroll or resize</p>
             </dev>
          </div>
       )

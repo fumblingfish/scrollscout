@@ -246,6 +246,11 @@
 
 @media screen and (max-width: 680px) {
 
+    .code-ex{
+        display: none;
+    }
+
+
     .touchevents .scene__subject {
         transition: opacity 0.4s ease;
         opacity: 0;
@@ -274,8 +279,8 @@
     }
 
     .touchevents .monitor, .monitor-background {
-        left: 16%;
-        right: 16%;
+        left: 10%;
+        right: 10%;
     }
 
     .touchevents .slider-container {
