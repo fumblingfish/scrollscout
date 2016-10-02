@@ -100,8 +100,8 @@ export default function scout(obsvr, view, scene, optns) {
    }
 
    const addPin = function (pinName) {
-      if(_.isNil(pinName)){
-         console.warn(`name must be a string. see addPin`)
+      if(!_.isString(pinName)){
+         console.warn(`pin name must be a string. see addPin`)
          return false
       }
       if (pins[pinName]) {

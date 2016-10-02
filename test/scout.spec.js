@@ -37,6 +37,14 @@ describe('scout', function () {
          expect(a1).to.deep.equal(a2)
       })
 
+      it('should return false if no pin name is passed', () => {
+         const sc = scrollscout.create()
+         const a1 = sc.addPin()
+         expect(a1).to.be.equal(false)
+         const a2 = sc.addPin({})
+         expect(a2).to.be.equal(false)
+      })
+
    })
 
    describe('getPin', function () {
@@ -69,11 +77,6 @@ describe('scout', function () {
          expect(pin).to.be.undefined
       })
 
-      it('should return false if no pin name is passed', () => {
-         const sc = scrollscout.create()
-         const p = sc.addPin()
-         expect(p).to.be.equal(false)
-      })
    })
 
    describe('_notifyListeners', function () {
