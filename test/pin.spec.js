@@ -9,6 +9,7 @@ const dummyScoutRef = {
    pinChanges: Function.prototype
 }
 
+
 const pinViewSceneTest = function (method) {
 
    const prop = `_${method}`
@@ -34,15 +35,29 @@ const pinViewSceneTest = function (method) {
 describe('pin', function () {
 
    describe('subscribe', function () {
-      it('should subscribe and unsubscribe', () => {
 
+      it('should subscribe and unsubscribe with return function', () => {
          var value = 0
          const sc = scrollscout.create()
          const pin = sc.addPin('A')
          const unsub = pin.subscribe(() => value++)
+         pin.subscribe(() => value++)
+         sc._notifyListeners('A')
+         expect(value).to.be.equal(2)
+         unsub()
+         sc._notifyListeners('A')
+         expect(value).to.be.equal(3)
+      })
+
+      it('should subscribe and unsubscribe', () => {
+         var value = 0
+         const sc = scrollscout.create()
+         const pin = sc.addPin('A')
+         const fn = () => value++
+         pin.subscribe(fn)
          sc._notifyListeners('A')
          expect(value).to.be.equal(1)
-         unsub()
+         pin.unsubscribe(fn)
          sc._notifyListeners('A')
          expect(value).to.be.equal(1)
       })

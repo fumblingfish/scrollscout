@@ -3,9 +3,8 @@ import _ from 'lodash'
 function observer() {
    var listeners = [], UID = 0
 
-   const removeEventListener = (id) => {
-      listeners = _.filter(listeners, listener => listener.id !== id)
-      return id
+   const removeEventListener = (cb) => {
+      listeners = _.filter(listeners, listener => listener.callback !== cb)
    }
 
    return {
@@ -15,19 +14,15 @@ function observer() {
          var event = {id: UID, type, callback}
          listeners.push(event)
          const fn = function(){
-            removeEventListener(event.id)
+            removeEventListener(event.callback)
             return event
          }
          fn._id = event.id
          return fn
       },
 
-      removeListener(removeListenerFn) {
-         return removeListenerFn()
-      },
-
-      removeListenerById(id) {
-         return removeEventListener(id)
+      removeListener(cb) {
+         return removeEventListener(cb)
       },
 
       removeAllListeners() {

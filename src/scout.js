@@ -117,7 +117,7 @@ export default function scout(obsvr, view, scene, optns) {
       const listeners = observer.getListeners()
       const listenersWithPinName = _.filter(listeners, (lnr) => lnr.type === pinName)
       _.forEach(listenersWithPinName, (lsnr) => {
-         observer.removeListenerById(lsnr.id)
+         observer.removeListener(lsnr.callback)
       })
       shouldRefreshBeforeUpdate = true
       pinsToUpdate = _.filter(pinsToUpdate, (pin) => pin._name !== pinName)
@@ -134,13 +134,9 @@ export default function scout(obsvr, view, scene, optns) {
 
    const debug = function (value) {
       if (value === false) {
-         _.keysIn(pins).forEach(key => {
-            pins[key].debug(false)
-         })
+         _.keysIn(pins).forEach(key => pins[key].debug(false))
       } else {
-         _.keysIn(pins).forEach(key => {
-            pins[key].debug(true)
-         })
+         _.keysIn(pins).forEach(key => pins[key].debug(true))
       }
       update()
    }
@@ -249,6 +245,7 @@ export default function scout(obsvr, view, scene, optns) {
 
    var _scoutInternal = {
       addListener,
+      removeListener,
       removePin,
       pinChanges,
       update

@@ -16,26 +16,29 @@ describe('observer', function () {
    describe('removeListener', function () {
       it('should remove listener', () => {
          const obs = observer()
-         const idA = obs.addListener("A", ()=> {})
-         const idB = obs.addListener("B", ()=> {})
-         const idC = obs.addListener("C", ()=> {})
+         const fnA = ()=> {}
+         const fnB = ()=> {}
+         const fnC = ()=> {}
+         obs.addListener("A", fnA)
+         obs.addListener("B", fnB)
+         const idC = obs.addListener("C", fnC)
          idC()
          const actual = (obs.getListeners()[0].type === "A" && obs.getListeners()[1].type === "B")
          expect(actual).to.be.equal(true)
-         obs.removeListener(idA)
-         obs.removeListener(idB)
+         obs.removeListener(fnA)
+         obs.removeListener(fnB)
          expect(obs.getListeners().length).to.be.equal(0)
       })
    })
 
-   describe('removeListenerById', function () {
-      it('should remove listener by id', () => {
-         const obs = observer()
-         const fn = obs.addListener("A", ()=> {})
-         obs.removeListenerById(fn._id)
-         expect(obs.getListeners().length).to.be.equal(0)
-      })
-   })
+   // describe('removeListenerById', function () {
+   //    it('should remove listener by id', () => {
+   //       const obs = observer()
+   //       const fn = obs.addListener("A", ()=> {})
+   //       obs.removeListenerById(fn._id)
+   //       expect(obs.getListeners().length).to.be.equal(0)
+   //    })
+   // })
 
    describe('removeAllListeners', function () {
       it('should remove all listeners', () => {
