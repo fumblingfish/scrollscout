@@ -13,6 +13,9 @@ class Pin extends PinBase {
       this.subscribe = (fn) => {
          return scoutRef.addListener(this._name, fn)
       }
+      this.unsubscribe = (fn) => {
+         return scoutRef.removeListener(fn)
+      }
       this.destroy = () => scoutRef.removePin(this._name)
       return this
    }
