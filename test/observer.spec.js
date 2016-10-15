@@ -11,6 +11,15 @@ describe('observer', function () {
          obs.addListener("A", ()=> {})
          expect(obs.getListeners().length).to.be.equal(1)
       })
+      it('should only add unique listeners', () => {
+         const obs = observer()
+         const fnA = function A(){}
+         obs.addListener("A", fnA)
+         obs.addListener("A", fnA)
+         obs.addListener("A", ()=>{})
+         expect(obs.getListeners().length).to.be.equal(2)
+      })
+
    })
 
    describe('removeListener', function () {
@@ -25,20 +34,26 @@ describe('observer', function () {
          idC()
          const actual = (obs.getListeners()[0].type === "A" && obs.getListeners()[1].type === "B")
          expect(actual).to.be.equal(true)
-         obs.removeListener(fnA)
-         obs.removeListener(fnB)
+         obs.removeListener("A", fnA)
+         obs.removeListener("B", fnB)
          expect(obs.getListeners().length).to.be.equal(0)
       })
-   })
+      it('should remove listener not handler', () => {
+         let value = 0
+         const obs = observer()
+         const fnA = ()=> {value = value + 1}
+         const fnB = ()=> {value = value + 1}
+         obs.addListener("A", fnA)
+         obs.addListener("B", fnB)
+         obs.addListener("C", fnB)
+         obs.removeListener('B', fnB)
+         obs.notifyListeners('A', {})
+         obs.notifyListeners('B', {})
+         obs.notifyListeners('C', {})
+         expect(value).to.be.equal(2)
+      })
 
-   // describe('removeListenerById', function () {
-   //    it('should remove listener by id', () => {
-   //       const obs = observer()
-   //       const fn = obs.addListener("A", ()=> {})
-   //       obs.removeListenerById(fn._id)
-   //       expect(obs.getListeners().length).to.be.equal(0)
-   //    })
-   // })
+   })
 
    describe('removeAllListeners', function () {
       it('should remove all listeners', () => {

@@ -6,9 +6,8 @@ import chai from 'chai'
 const expect = chai.expect
 
 const dummyScoutRef = {
-   pinChanges: Function.prototype
+   _pinChanges: Function.prototype
 }
-
 
 const pinViewSceneTest = function (method) {
 
@@ -30,7 +29,6 @@ const pinViewSceneTest = function (method) {
    expect(pinD[prop].position).to.be.equal(0.5)
    expect(pinD[prop].offset).to.be.equal(0)
 }
-
 
 describe('pin', function () {
 

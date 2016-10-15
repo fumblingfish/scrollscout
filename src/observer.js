@@ -3,27 +3,29 @@ import _ from 'lodash'
 function observer() {
    var listeners = [], UID = 0
 
-   const removeEventListener = (cb) => {
-      listeners = _.filter(listeners, listener => listener.callback !== cb)
+   const removeEventListener = (type, cb) => {
+      _.remove(listeners, listener => {
+         return listener.callback === cb && listener.type === type
+      })
    }
 
    return {
 
       addListener(type, callback) {
+         const matchListener = listener => (listener.callback === callback && listener.type === type)
+         if(_.some(listeners, matchListener)) return
          UID += 1
          var event = {id: UID, type, callback}
          listeners.push(event)
          const fn = function(){
-            removeEventListener(event.callback)
+            removeEventListener(type, event.callback)
             return event
          }
          fn._id = event.id
          return fn
       },
 
-      removeListener(cb) {
-         return removeEventListener(cb)
-      },
+      removeListener: removeEventListener,
 
       removeAllListeners() {
          listeners = []

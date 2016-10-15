@@ -3,20 +3,20 @@ import {FORWARD, BACKWARD, AXIS_X, AXIS_Y} from './constants'
 
 
 class Pin extends PinBase {
-   constructor(name, scoutRef) {
+   constructor(name, scout) {
       super()
       this._name = name
       this._direction = FORWARD
       this._axis = AXIS_Y
       this._debug = false
-      this._pinChanges = scoutRef.pinChanges
+      this._pinChanges = scout._pinChanges
       this.subscribe = (fn) => {
-         return scoutRef.addListener(this._name, fn)
+         return scout._addListener(this._name, fn)
       }
       this.unsubscribe = (fn) => {
-         return scoutRef.removeListener(fn)
+         return scout._removeListener(this._name, fn)
       }
-      this.destroy = () => scoutRef.removePin(this._name)
+      this.destroy = () => scout.removePin(this._name)
       return this
    }
 

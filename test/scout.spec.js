@@ -121,15 +121,15 @@ describe('scout', function () {
    describe('removeListeners', function () {
       it('should remove a listener', () => {
          var value = 0
-         const fnA = () => value++
-         const fnB = () => value++
+         const fnA = () => value = value + 1
+         const fnB = () => value = value + 1
          const sc = scrollscout.create()
          sc.addPin('A')
          sc._addListener('A', fnA)
          sc._addListener('A', fnB)
          sc._notifyListeners('A')
          expect(value).to.be.equal(2)
-         sc._removeListener(fnA)
+         sc._removeListener('A', fnA)
          sc._notifyListeners('A')
          expect(value).to.be.equal(3)
       })

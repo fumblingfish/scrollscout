@@ -28,7 +28,6 @@ const propMap = {
 
 const translate = (axis, value) => `${axis}(${value}px)`
 
-
 const createMarker = function (targetType, pin) {
 
    const axisStyle = propMap[pin._axis]
@@ -67,6 +66,7 @@ const createMarker = function (targetType, pin) {
    marker.style.cssText = 'position:fixed; font-family:consolas, monospace; font-size:10px;'
    marker.style.zIndex = 100000
    marker.style.color = pin._debugColor
+   marker.style.width = '100%'
    marker.style.pointerEvents = 'none'
 
    return {marker, line, title, dirPointer}
@@ -78,7 +78,7 @@ const styleMarkerView = function (markObj, pin) {
    const dir = pin._direction === BACKWARD ? 1 : 0
    marker.style[axisStyle.sides[dir]] = '0px'
    title.style[axisStyle.sides[dir]] = '15px'
-   title.style.width = '100px'
+  // title.style.width = '100px'
    title.style.textAlign = axisStyle.sides[dir]
    dirPointer.style[axisStyle.sides[dir]] = '60px'
    return markObj.marker
@@ -94,7 +94,7 @@ const styleMarkerScene = function (markObj, pin) {
    line.style.background = pin._debugColor
    line.style[axisStyle.size[1]] = '40px'
    title.style[axisStyle.sides[dir]] = '0px'
-   title.style.width = '100px'
+  // title.style.width = '100px'
    title.style.textAlign = axisStyle.sides[dir]
    dirPointer.innerHTML = axisStyle.arrowChar[dirInv]
    return markObj.marker

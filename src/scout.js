@@ -1,5 +1,7 @@
 import _ from 'lodash'
+import createObserver from './observer'
 import Pin from './pin'
+import scoutEvents from './scoutEvents'
 import createState, {createInitialState} from './createState'
 import {AXIS_X, AXIS_Y, FORWARD, BACKWARD} from './constants'
 
@@ -83,12 +85,12 @@ export default function scout(obsvr, view, scene, optns) {
       return observer.addListener(pinName, fn)
    }
 
-   const removeListener = function (fn) {
-      return observer.removeListener(fn)
+   const removeListener = function (pinName, fn) {
+      return observer.removeListener(pinName, fn)
    }
 
-   const removeAllListeners = function (fn) {
-      return observer.removeAllListeners(fn)
+   const removeAllListeners = function () {
+      return observer.removeAllListeners()
    }
 
    const getListeners = function () {
@@ -108,7 +110,7 @@ export default function scout(obsvr, view, scene, optns) {
          console.warn(`Pin name must be unique. ${pinName} is already added`)
          return pins[pinName]
       }
-      const pin = new Pin(pinName, _scoutInternal)
+      const pin = new Pin(pinName, _scout)
       pins[pinName] = pin
       return pin
    }
@@ -117,7 +119,7 @@ export default function scout(obsvr, view, scene, optns) {
       const listeners = observer.getListeners()
       const listenersWithPinName = _.filter(listeners, (lnr) => lnr.type === pinName)
       _.forEach(listenersWithPinName, (lsnr) => {
-         observer.removeListener(lsnr.callback)
+         observer.removeListener(pinName, lsnr.callback)
       })
       shouldRefreshBeforeUpdate = true
       pinsToUpdate = _.filter(pinsToUpdate, (pin) => pin._name !== pinName)
@@ -243,18 +245,8 @@ export default function scout(obsvr, view, scene, optns) {
       }
    }
 
-   var _scoutInternal = {
-      addListener,
-      removeListener,
-      removePin,
-      pinChanges,
-      update
-   }
 
-   contextEnv = options.context(view, scene, _scoutInternal)
-
-   return {
-
+   var _scout = {
       // scrollscout api
       addPin,
       removePin,
@@ -270,6 +262,14 @@ export default function scout(obsvr, view, scene, optns) {
       _removeAllListeners: removeAllListeners,
       _getListeners: getListeners,
       _isDebugging: isDebugging,
+      _pinChanges: pinChanges,
       _notifyListeners: notifyListeners,
    }
+
+   _scout.on = scoutEvents(_scout, createObserver())
+
+   contextEnv = options.context(view, scene, _scout)
+
+   return _scout
+
 }
