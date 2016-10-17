@@ -6,7 +6,7 @@ class ScoutEvent {
 
    constructor(_name, _observer){
       this.id = ScoutEvent.UID++
-      this.nameId = `${EVT}_${_name}_${ScoutEvent.UID++}`
+      this.nameId = `${EVT}_${_name}_${this.id}`
       this.observer = _observer
    }
 
@@ -22,11 +22,11 @@ class ScoutEvent {
    }
 
    subscribe(fn){
-      return this.observer.addListener(this.id , fn)
+      return this.observer.addListener(this.nameId , fn)
    }
 
    unsubscribe(fn){
-      return this.observer.removeListener(fn)
+      return this.observer.removeListener(this.nameId, fn)
    }
 
    destroy(){
