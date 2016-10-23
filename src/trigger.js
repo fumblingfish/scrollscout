@@ -1,9 +1,9 @@
-import Pin from './marker'
+import Pins from './pins'
 import {FORWARD, BACKWARD, AXIS_X, AXIS_Y} from './constants'
 
 
 
-class Trigger extends Pin {
+class Trigger extends Pins {
    constructor(name, scout) {
       super()
       this._name = name

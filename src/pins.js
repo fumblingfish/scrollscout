@@ -6,7 +6,7 @@ var parseOffset = function (offset) {
    return _.isString(offset) ? parseFloat(offset.match(/[-+0-9]+/g)) : parseFloat(offset)
 }
 
-class Marker {
+class Pins {
    constructor() {
       this._view = {
          position: 0.5,
@@ -32,4 +32,4 @@ class Marker {
 }
 
 
-export default Marker
+export default Pins
