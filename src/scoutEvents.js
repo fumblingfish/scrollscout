@@ -11,13 +11,13 @@ class ScoutEvent {
    }
 
    _handler(evt){
-      return this.observer.notifyListeners(this.id, evt)
+      return this.observer.notifyListeners(this.nameId, evt)
    }
 
-   _addPins(pins){
-      this.pins = pins
-      this.pins.forEach((pin)=>{
-         pin.subscribe((evt) => this._handler(evt))
+   _addTriggers(triggers){
+      this.triggers = triggers
+      this.triggers.forEach((trg)=>{
+         trg.subscribe((evt) => this._handler(evt))
       })
    }
 
@@ -30,8 +30,8 @@ class ScoutEvent {
    }
 
    destroy(){
-      this.pins.forEach((pin)=>{
-         pin.destroy()
+      this.triggers.forEach((trg)=>{
+         trg.destroy()
       })
    }
 }
@@ -42,33 +42,33 @@ export default function(scout, observer){
    return {
       sceneWillEnter(obj = {}){
          const scoutEvt = new ScoutEvent('sceneWillEnter', observer)
-         scoutEvt._addPins([
-            scout.addPin(`${scoutEvt.nameId}_fromBottom`).view(1, obj.offsetBottom).scene(0).forward(),
-            scout.addPin(`${scoutEvt.nameId}_fromTop`).view(0, obj.offsetTop).scene(1).backward()
+         scoutEvt._addTriggers([
+            scout.addTrigger(`${scoutEvt.nameId}_fromBottom`).view(1, obj.offsetBottom).scene(0).forward(),
+            scout.addTrigger(`${scoutEvt.nameId}_fromTop`).view(0, obj.offsetTop).scene(1).backward()
          ])
          return scoutEvt
       },
       sceneDidEnter(obj = {}){
          const scoutEvt = new ScoutEvent('sceneDidEnter', observer)
-         scoutEvt._addPins([
-            scout.addPin(`${scoutEvt.nameId}_fromBottom`).view(1, obj.offsetBottom).scene(1).forward(),
-            scout.addPin(`${scoutEvt.nameId}_fromTop`).view(0, obj.offsetTop).scene(0).backward()
+         scoutEvt._addTriggers([
+            scout.addTrigger(`${scoutEvt.nameId}_fromBottom`).view(1, obj.offsetBottom).scene(1).forward(),
+            scout.addTrigger(`${scoutEvt.nameId}_fromTop`).view(0, obj.offsetTop).scene(0).backward()
          ])
          return scoutEvt
       },
       sceneWillLeave(obj = {}){
          const scoutEvt = new ScoutEvent('sceneWillLeave', observer)
-         scoutEvt._addPins([
-            scout.addPin(`${scoutEvt.nameId}_fromTop`).view(0, obj.offsetTop).scene(0).forward(),
-            scout.addPin(`${scoutEvt.nameId}_fromBottom`).view(1, obj.offsetBottom).scene(1).backward()
+         scoutEvt._addTriggers([
+            scout.addTrigger(`${scoutEvt.nameId}_fromTop`).view(0, obj.offsetTop).scene(0).forward(),
+            scout.addTrigger(`${scoutEvt.nameId}_fromBottom`).view(1, obj.offsetBottom).scene(1).backward()
          ])
          return scoutEvt
       },
       sceneDidLeave(obj = {}){
          const scoutEvt = new ScoutEvent('sceneDidLeave', observer)
-         scoutEvt._addPins([
-            scout.addPin(`${scoutEvt.nameId}_fromTop`).view(0, obj.offsetTop).scene(1).forward(),
-            scout.addPin(`${scoutEvt.nameId}_fromBottom`).view(1, obj.offsetBottom).scene(0).backward()
+         scoutEvt._addTriggers([
+            scout.addTrigger(`${scoutEvt.nameId}_fromTop`).view(0, obj.offsetTop).scene(1).forward(),
+            scout.addTrigger(`${scoutEvt.nameId}_fromBottom`).view(1, obj.offsetBottom).scene(0).backward()
          ])
          return scoutEvt
       }

@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import createObserver from './observer'
-import Pin from './pin'
+import Trigger from './trigger'
 import scoutEvents from './scoutEvents'
 import createState, {createInitialState} from './createState'
 import {AXIS_X, AXIS_Y, FORWARD, BACKWARD} from './constants'
@@ -17,17 +17,17 @@ export const targetPoint = function (a1, a2, p, o) {
    return (a1 + a2 * p) + o
 }
 
-export const targetPointPair = function (stateView, stateScene, pin) {
+export const targetPointPair = function (stateView, stateScene, trigger) {
    return [
-      targetPoint(stateView[0], stateView[1], pin._view.position, pin._view.offset),
-      targetPoint(stateScene[0], stateScene[1], pin._scene.position, pin._scene.offset)
+      targetPoint(stateView[0], stateView[1], trigger._view.position, trigger._view.offset),
+      targetPoint(stateScene[0], stateScene[1], trigger._scene.position, trigger._scene.offset)
    ]
 }
 
 export const someAxis = function (axis) {
-   return function (listeners, pins) {
+   return function (listeners, triggers) {
       return _.some(listeners, (listener) => {
-         return ( pins[listener.type]._axis === axis )
+         return ( triggers[listener.type]._axis === axis )
       })
    }
 }
@@ -38,21 +38,21 @@ export const axisPair = function (axis, viewState, sceneState) {
       [[viewState.x1, viewState.x2], [sceneState.x1, sceneState.x2]]
 }
 
-export const pinDetails = function (pinObj) {
-   const {pT, nT} = pinObj
+export const triggerObj = function (trigger) {
+   const {pT, nT} = trigger
    const pDist = pT[1] - pT[0]
    const nDist = nT[0] - nT[1]
    const move = pDist + nDist
    const pDistRatio = pDist / move
-   return {move, pDist, nDist, pDistRatio, ...pinObj}
+   return {move, pDist, nDist, pDistRatio, ...trigger}
 }
 
 const smallestDistRatioFirst = function (a, b) {
    return a.pDistRatio < b.pDistRatio ? -1 : 1
 }
 
-export const notificationOrder = function (pins) {
-   return pins.sort(smallestDistRatioFirst)
+export const notificationOrder = function (triggers) {
+   return triggers.sort(smallestDistRatioFirst)
 }
 
 const someAxisX = someAxis(AXIS_X)
@@ -63,8 +63,8 @@ export default function scout(obsvr, view, scene, optns) {
    var observer = obsvr,
       options = optns,
       contextEnv,
-      pins = {},
-      pinsToUpdate = [],
+      triggers = {},
+      triggersToUpdate = [],
       hasAxisY = false,
       hasAxisX = false,
       shouldRefreshBeforeUpdate = true,
@@ -72,21 +72,21 @@ export default function scout(obsvr, view, scene, optns) {
       debugging = false,
       contextDebugger;
 
-   const pinChanges = function () {
+   const triggerChange = function () {
       shouldRefreshBeforeUpdate = true
    }
 
-   const addListener = function (pinName, fn) {
-      if (!pins[pinName]) {
-         console.warn(`addListener could not find a Pin with name ${pinName}`)
+   const addListener = function (trgName, fn) {
+      if (!triggers[trgName]) {
+         console.warn(`addListener could not find a Trigger with name ${trgName}`)
          return
       }
       shouldRefreshBeforeUpdate = true
-      return observer.addListener(pinName, fn)
+      return observer.addListener(trgName, fn)
    }
 
-   const removeListener = function (pinName, fn) {
-      return observer.removeListener(pinName, fn)
+   const removeListener = function (trgName, fn) {
+      return observer.removeListener(trgName, fn)
    }
 
    const removeAllListeners = function () {
@@ -97,37 +97,37 @@ export default function scout(obsvr, view, scene, optns) {
       return observer.getListeners()
    }
 
-   const notifyListeners = function (pinName, evt) {
-      return observer.notifyListeners(pinName, evt)
+   const notifyListeners = function (trgName, evt) {
+      return observer.notifyListeners(trgName, evt)
    }
 
-   const addPin = function (pinName) {
-      if(!_.isString(pinName)){
-         console.warn(`pin name must be a string. see addPin`)
+   const addTrigger = function (trgName) {
+      if(!_.isString(trgName)){
+         console.warn(`Trigger name must be a string. see addTrigger`)
          return false
       }
-      if (pins[pinName]) {
-         console.warn(`Pin name must be unique. ${pinName} is already added`)
-         return pins[pinName]
+      if (triggers[trgName]) {
+         console.warn(`Trigger name must be unique. ${trgName} is already added`)
+         return triggers[trgName]
       }
-      const pin = new Pin(pinName, _scout)
-      pins[pinName] = pin
-      return pin
+      const trg = new Trigger(trgName, _scout)
+      triggers[trgName] = trg
+      return trg
    }
 
-   const removePin = function (pinName) {
+   const removeTrigger = function (trgName) {
       const listeners = observer.getListeners()
-      const listenersWithPinName = _.filter(listeners, (lnr) => lnr.type === pinName)
-      _.forEach(listenersWithPinName, (lsnr) => {
-         observer.removeListener(pinName, lsnr.callback)
+      const listenersWithTriggerName = _.filter(listeners, (lnr) => lnr.type === trgName)
+      _.forEach(listenersWithTriggerName, (lsnr) => {
+         observer.removeListener(trgName, lsnr.callback)
       })
       shouldRefreshBeforeUpdate = true
-      pinsToUpdate = _.filter(pinsToUpdate, (pin) => pin._name !== pinName)
-      return delete pins[pinName]
+      triggersToUpdate = _.filter(triggersToUpdate, (trg) => trg._name !== trgName)
+      return delete triggers[trgName]
    }
 
-   const getPin = function (pinName) {
-      return pins[pinName]
+   const getTrigger = function (trgName) {
+      return triggers[trgName]
    }
 
    const isDebugging = function () {
@@ -136,9 +136,9 @@ export default function scout(obsvr, view, scene, optns) {
 
    const debug = function (value) {
       if (value === false) {
-         _.keysIn(pins).forEach(key => pins[key].debug(false))
+         _.keysIn(triggers).forEach(key => triggers[key].debug(false))
       } else {
-         _.keysIn(pins).forEach(key => pins[key].debug(true))
+         _.keysIn(triggers).forEach(key => triggers[key].debug(true))
       }
       update()
    }
@@ -147,35 +147,35 @@ export default function scout(obsvr, view, scene, optns) {
       const listeners = observer.getListeners()
 
       //refresh
-      pinsToUpdate = _.valuesIn(pins, (pin) => pin)
-      hasAxisX = someAxisX(listeners, pins)
-      hasAxisY = someAxisY(listeners, pins)
+      triggersToUpdate = _.valuesIn(triggers, (trg) => trg)
+      hasAxisX = someAxisX(listeners, triggers)
+      hasAxisY = someAxisY(listeners, triggers)
       shouldRefreshBeforeUpdate = false
 
       let envState
 
-      pinsToUpdate.forEach((pin) => {
-         if (!pin._pT) {
+      triggersToUpdate.forEach((trg) => {
+         if (!trg._pT) {
             envState = envState ? envState : createInitialState(contextEnv, hasAxisX, hasAxisY)
-            const prevStatePair = axisPair(pin._axis, envState.view, envState.scene)
-            pin._pT = targetPointPair(prevStatePair[0], prevStatePair[1], pin)
+            const prevStatePair = axisPair(trg._axis, envState.view, envState.scene)
+            trg._pT = targetPointPair(prevStatePair[0], prevStatePair[1], trg)
          }
       })
 
-      const pinsToDebug = _.filter(pinsToUpdate, pin => pin._debug)
+      const triggersToDebug = _.filter(triggersToUpdate, trigger => trigger._debug)
 
-      if (pinsToDebug.length > 0) {
+      if (triggersToDebug.length > 0) {
          debugging = true
          if (contextDebugger) {
-            contextDebugger.clearPins()
+            contextDebugger.clearTriggers()
          } else {
             contextDebugger = contextEnv.debug()
          }
-         contextDebugger.addPins(pinsToDebug)
+         contextDebugger.addTriggers(triggersToDebug)
          cachedUpdate = !cachedUpdate ? updateScout : cachedUpdate
          updateScout = () => {
             cachedUpdate.apply(this, arguments)
-            contextDebugger.update(pinsToDebug)
+            contextDebugger.update(triggersToDebug)
          }
          updateScout()
       } else if (debugging) {
@@ -183,10 +183,10 @@ export default function scout(obsvr, view, scene, optns) {
          contextEnv.debugStop()
          updateScout = cachedUpdate
          cachedUpdate = null
-         contextDebugger.clearPins()
+         contextDebugger.clearTriggers()
       }
       if (contextDebugger) {
-         contextDebugger.cleanUp(pinsToDebug)
+         contextDebugger.cleanUp(triggersToDebug)
       }
    }
 
@@ -197,33 +197,33 @@ export default function scout(obsvr, view, scene, optns) {
       }
 
       const nextState = createState(contextEnv, hasAxisX, hasAxisY)
-      let resolvedPins = _.map(pinsToUpdate, (pin) => {
-         const pT = pin._pT
-         const predicate = directionPredicates[pin._direction]
-         const nextStatePair = axisPair(pin._axis, nextState.view, nextState.scene)
-         const nT = targetPointPair(nextStatePair[0], nextStatePair[1], pin)
+      let resolvedTriggers = _.map(triggersToUpdate, (trg) => {
+         const pT = trg._pT
+         const predicate = directionPredicates[trg._direction]
+         const nextStatePair = axisPair(trg._axis, nextState.view, nextState.scene)
+         const nT = targetPointPair(nextStatePair[0], nextStatePair[1], trg)
          const notify = predicate(pT[0], pT[1], nT[0], nT[1])
-         return {pin, pT, nT, notify}
+         return {trigger:trg, pT, nT, notify}
       })
 
-      _.forEach(resolvedPins, (pinObj) => {
-         pinObj.pin._pT = pinObj.nT
+      _.forEach(resolvedTriggers, (trgObj) => {
+         trgObj.trigger._pT = trgObj.nT
       })
 
-      const resolvedPinsToNotify = _.filter(resolvedPins, (resolvedPin) => resolvedPin.notify)
-      const pinsToNotify = _.map(resolvedPinsToNotify, pinDetails)
-      const ordered = pinsToNotify.length > 1 ? notificationOrder(pinsToNotify) : pinsToNotify
+      const resolvedTriggersToNotify = _.filter(resolvedTriggers, (resolvedTrg) => resolvedTrg.notify)
+      const triggersToNotify = _.map(resolvedTriggersToNotify, triggerObj)
+      const ordered = triggersToNotify.length > 1 ? notificationOrder(triggersToNotify) : triggersToNotify
 
-      _.forEach(ordered, (resolvedPin) => {
-         const {pin} = resolvedPin
+      _.forEach(ordered, (resolvedTrg) => {
+         const {trigger} = resolvedTrg
          var evtObject = {
-            target: pin,
-            state: {view: pin._pT[0], scene: pin._pT[1]},
-            sceneViewDistance: resolvedPin.nDist,
-            move: resolvedPin.move,
-            axis: resolvedPin.pin._axis,
+            target: trigger,
+            state: {view: trigger._pT[0], scene: trigger._pT[1]},
+            sceneViewDistance: resolvedTrg.nDist,
+            move: resolvedTrg.move,
+            axis: resolvedTrg.trigger._axis,
          }
-         notifyListeners(resolvedPin.pin._name, evtObject)
+         notifyListeners(resolvedTrg.trigger._name, evtObject)
       })
    }
 
@@ -247,10 +247,10 @@ export default function scout(obsvr, view, scene, optns) {
 
 
    var _scout = {
-      // scrollscout api
-      addPin,
-      removePin,
-      getPin,
+      // public
+      addTrigger,
+      removeTrigger,
+      getTrigger,
       update,
       debug,
       start,
@@ -262,7 +262,7 @@ export default function scout(obsvr, view, scene, optns) {
       _removeAllListeners: removeAllListeners,
       _getListeners: getListeners,
       _isDebugging: isDebugging,
-      _pinChanges: pinChanges,
+      _triggerChange: triggerChange,
       _notifyListeners: notifyListeners,
    }
 

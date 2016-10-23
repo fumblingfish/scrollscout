@@ -6,10 +6,10 @@ import {
    notificationOrder,
    passesForward,
    passesBackward,
-   pinDetails
+   triggerObj
 } from '../src/scout'
 import {AXIS_X, AXIS_Y} from '../src/constants'
-import Pin from '../src/pin'
+import Trigger from '../src/trigger'
 
 const expect = chai.expect
 
@@ -23,58 +23,58 @@ const backward = function (pT, nT) {
 
 describe('scout', function () {
 
-   describe('addPin', function () {
-      it('should return a new pin', () => {
+   describe('addTrigger', function () {
+      it('should return a new trigger', () => {
          const sc = scrollscout.create()
-         const pin = sc.addPin('A')
-         expect(pin).to.be.an.instanceof(Pin)
+         const trg = sc.addTrigger('A')
+         expect(trg).to.be.an.instanceof(Trigger)
       })
 
-      it('should return same pin if pin already exists', () => {
+      it('should return same trigger if trigger already exists', () => {
          const sc = scrollscout.create()
-         const a1 = sc.addPin('A')
-         const a2 = sc.addPin('A')
+         const a1 = sc.addTrigger('A')
+         const a2 = sc.addTrigger('A')
          expect(a1).to.deep.equal(a2)
       })
 
-      it('should return false if no pin name is passed', () => {
+      it('should return false if no trigger name is passed', () => {
          const sc = scrollscout.create()
-         const a1 = sc.addPin()
+         const a1 = sc.addTrigger()
          expect(a1).to.be.equal(false)
-         const a2 = sc.addPin({})
+         const a2 = sc.addTrigger({})
          expect(a2).to.be.equal(false)
       })
 
    })
 
-   describe('getPin', function () {
-      it('should return pin by name', () => {
+   describe('getTrigger', function () {
+      it('should return trigger by name', () => {
          const sc = scrollscout.create()
-         sc.addPin('A')
-         const pin = sc.getPin('A')
-         expect(pin._name).to.be.equal('A')
+         sc.addTrigger('A')
+         const trg = sc.getTrigger('A')
+         expect(trg._name).to.be.equal('A')
       })
    })
 
-   describe('removePin', function () {
-      it('should remove a Pin', () => {
+   describe('removeTrigger', function () {
+      it('should remove a trigger', () => {
          const sc = scrollscout.create()
-         sc.addPin('A')
-         sc.addPin('B')
+         sc.addTrigger('A')
+         sc.addTrigger('B')
          sc._addListener('A', () => {})
          sc._addListener('A', () => {})
          sc._addListener('B', () => {})
-         sc.removePin('A')
+         sc.removeTrigger('A')
          const allListeners = sc._getListeners()
          expect(allListeners.length).to.be.equal(1)
       })
 
-      it('should unsubscribe pin subscribers', () => {
+      it('should unsubscribe trigger subscribers', () => {
          const sc = scrollscout.create()
-         sc.addPin('A')
-         sc.removePin('A')
-         const pin = sc.getPin('A')
-         expect(pin).to.be.undefined
+         sc.addTrigger('A')
+         sc.removeTrigger('A')
+         const trg = sc.getTrigger('A')
+         expect(trg).to.be.undefined
       })
 
    })
@@ -83,8 +83,8 @@ describe('scout', function () {
       it('should notify subscribers', () => {
          var value = 0
          const sc = scrollscout.create()
-         const pin = sc.addPin('A')
-         pin.subscribe(() => value++)
+         const trg = sc.addTrigger('A')
+         trg.subscribe(() => value++)
          sc._notifyListeners('B')
          expect(value).to.be.equal(0)
          sc._notifyListeners('A')
@@ -94,7 +94,7 @@ describe('scout', function () {
       it('should notify listeners', () => {
          var value = 0
          const sc = scrollscout.create()
-         sc.addPin('A')
+         sc.addTrigger('A')
          sc._addListener('A', () => value++)
          sc._notifyListeners('B')
          expect(value).to.be.equal(0)
@@ -108,7 +108,7 @@ describe('scout', function () {
       it('should add listeners and return unsubscriber function', () => {
          var value = 0, unsub
          const sc = scrollscout.create()
-         sc.addPin('A')
+         sc.addTrigger('A')
          unsub = sc._addListener('A', () => value++)
          sc._notifyListeners('A')
          expect(value).to.be.equal(1)
@@ -124,7 +124,7 @@ describe('scout', function () {
          const fnA = () => value = value + 1
          const fnB = () => value = value + 1
          const sc = scrollscout.create()
-         sc.addPin('A')
+         sc.addTrigger('A')
          sc._addListener('A', fnA)
          sc._addListener('A', fnB)
          sc._notifyListeners('A')
@@ -141,25 +141,25 @@ describe('scout', function () {
          const sc = scrollscout.create()
          const someAxisX = someAxis(AXIS_X)
          const someAxisY = someAxis(AXIS_Y)
-         const pinA = sc.addPin('A').axis('x')
-         const pinB = sc.addPin('B').axis('y')
-         const pinC = sc.addPin('C').axis('y')
+         const trgA = sc.addTrigger('A').axis('x')
+         const trgB = sc.addTrigger('B').axis('y')
+         const trgC = sc.addTrigger('C').axis('y')
 
-         const pins = {'A': pinA, 'B': pinB, 'C': pinC,}
+         const triggers = {'A': trgA, 'B': trgB, 'C': trgC,}
          const listeners1 = [{type: 'A'}, {type: 'B'}, {type: 'C'}]
-         expectedX = someAxisX(listeners1, pins)
-         expectedY = someAxisY(listeners1, pins)
+         expectedX = someAxisX(listeners1, triggers)
+         expectedY = someAxisY(listeners1, triggers)
          expect(expectedX).to.be.equal(true)
          expect(expectedY).to.be.equal(true)
 
          const listeners2 = [{type: 'B'}, {type: 'C'}]
-         expectedX = someAxisX(listeners2, pins)
-         expectedY = someAxisY(listeners2, pins)
+         expectedX = someAxisX(listeners2, triggers)
+         expectedY = someAxisY(listeners2, triggers)
          expect(expectedX).to.be.equal(false)
          expect(expectedY).to.be.equal(true)
 
-         expectedX = someAxisX([], pins)
-         expectedY = someAxisY([], pins)
+         expectedX = someAxisX([], triggers)
+         expectedY = someAxisY([], triggers)
          expect(expectedX).to.be.equal(false)
          expect(expectedY).to.be.equal(false)
 
@@ -172,8 +172,7 @@ describe('scout', function () {
             [1, 4],
             [2, 4]
          ]
-         var actual, pin
-         pin = {
+         var actual, trg = {
             _view: {
                position: 0.5,
                offset: 0
@@ -183,9 +182,9 @@ describe('scout', function () {
                offset: 0
             }
          }
-         actual = targetPointPair(stateA[0], stateA[1], pin)
+         actual = targetPointPair(stateA[0], stateA[1], trg)
          expect(actual).to.deep.equal([3, 4])
-         pin = {
+         trg = {
             _view: {
                position: 0.5,
                offset: 0
@@ -195,7 +194,7 @@ describe('scout', function () {
                offset: 0
             }
          }
-         actual = targetPointPair(stateA[0], stateA[1], pin)
+         actual = targetPointPair(stateA[0], stateA[1], trg)
          expect(actual).to.deep.equal([3, 2])
       })
    })
@@ -231,62 +230,62 @@ describe('scout', function () {
    })
 
 
-   const getOrderedPins = (pins) => notificationOrder(pins.map(pinDetails))
+   const getOrderedTriggers = (triggers) => notificationOrder(triggers.map(triggerObj))
 
    describe('notificationOrder', function () {
       it('should return notificationList in right order ', () => {
-         var resolvedPinsToNotify, orderedPair
-         resolvedPinsToNotify = [{
+         var resolvedTriggersToNotify, orderedPair
+         resolvedTriggersToNotify = [{
             pT: [140, 240],
             nT: [302, 240],
-            pin: {_name: 'A1', _direction: 'forward'}
+            trigger: {_name: 'A1', _direction: 'forward'}
          },
             {
                pT: [200, 256],
                nT: [370, 256],
-               pin: {_name: 'B1', _direction: 'forward'}
+               trigger: {_name: 'B1', _direction: 'forward'}
             }]
-         orderedPair = getOrderedPins(resolvedPinsToNotify)
-         expect(orderedPair[0].pin._name === 'B1').to.be.equal(true)
+         orderedPair = getOrderedTriggers(resolvedTriggersToNotify)
+         expect(orderedPair[0].trigger._name === 'B1').to.be.equal(true)
 
-         resolvedPinsToNotify = [{
+         resolvedTriggersToNotify = [{
             pT: [216, 250],
             nT: [328, 250],
-            pin: {_name: 'A2', _direction: 'forward'}
+            trigger: {_name: 'A2', _direction: 'forward'}
          },
             {
                pT: [284, 300],
                nT: [312, 300],
-               pin: {_name: 'B2', _direction: 'forward'}
+               trigger: {_name: 'B2', _direction: 'forward'}
             }]
-         orderedPair = getOrderedPins(resolvedPinsToNotify)
-         expect(orderedPair[0].pin._name === 'A2').to.be.equal(true)
+         orderedPair = getOrderedTriggers(resolvedTriggersToNotify)
+         expect(orderedPair[0].trigger._name === 'A2').to.be.equal(true)
 
-         resolvedPinsToNotify = [{
+         resolvedTriggersToNotify = [{
             pT: [370, 240],
             nT: [328, 240],
-            pin: {_name: 'A3b', _direction: 'backward'}
+            trigger: {_name: 'A3b', _direction: 'backward'}
          },
             {
                pT: [302, 256],
                nT: [140, 256],
-               pin: {_name: 'B3b', _direction: 'backward'}
+               trigger: {_name: 'B3b', _direction: 'backward'}
             }]
-         orderedPair = getOrderedPins(resolvedPinsToNotify)
-         expect(orderedPair[0].pin._name === 'B3b').to.be.equal(true)
+         orderedPair = getOrderedTriggers(resolvedTriggersToNotify)
+         expect(orderedPair[0].trigger._name === 'B3b').to.be.equal(true)
 
-         resolvedPinsToNotify = [{
+         resolvedTriggersToNotify = [{
             pT: [325, 250],
             nT: [179, 300],
-            pin: {_name: 'B4b', _direction: 'backward'}
+            trigger: {_name: 'B4b', _direction: 'backward'}
          },
             {
                pT: [265, 230],
                nT: [151, 280],
-               pin: {_name: 'A4b', _direction: 'backward'}
+               trigger: {_name: 'A4b', _direction: 'backward'}
             }]
-         orderedPair = getOrderedPins(resolvedPinsToNotify)
-         expect(orderedPair[0].pin._name === 'A4b').to.be.equal(true)
+         orderedPair = getOrderedTriggers(resolvedTriggersToNotify)
+         expect(orderedPair[0].trigger._name === 'A4b').to.be.equal(true)
 
       })
    })

@@ -28,16 +28,16 @@ const propMap = {
 
 const translate = (axis, value) => `${axis}(${value}px)`
 
-const createMarker = function (targetType, pin) {
+const createMarker = function (targetType, trg) {
 
-   const axisStyle = propMap[pin._axis]
-   const dir = pin._direction === BACKWARD ? 1 : 0
+   const axisStyle = propMap[trg._axis]
+   const dir = trg._direction === BACKWARD ? 1 : 0
 
    const marker = document.createElement('div')
    const line = document.createElement('div')
    const title = document.createElement('div')
    const dirPointer = document.createElement('div')
-   const markerName = document.createTextNode(pin._name)
+   const markerName = document.createTextNode(trg._name)
 
    title.appendChild(markerName)
    marker.appendChild(dirPointer)
@@ -53,7 +53,7 @@ const createMarker = function (targetType, pin) {
    dirPointer.style.textAlign = 'center'
 
    line.style.position = 'absolute'
-   line.style.background = pin._debugColor
+   line.style.background = trg._debugColor
    line.style[axisStyle.sides[dir]] = '0px'
    line.style[axisStyle.size[0]] = '1px'
    line.style[axisStyle.size[1]] = '80px'
@@ -61,40 +61,38 @@ const createMarker = function (targetType, pin) {
    title.style.position = 'absolute'
    title.style[axisStyle.orientation] = '5px'
 
-   marker.id = `__pin__${targetType}__${pin._name}`
+   marker.id = `__marker__${targetType}__${trg._name}`
    marker.style[axisStyle.orientation] = 0
    marker.style.cssText = 'position:fixed; font-family:consolas, monospace; font-size:10px;'
    marker.style.zIndex = 100000
-   marker.style.color = pin._debugColor
+   marker.style.color = trg._debugColor
    marker.style.width = '100%'
    marker.style.pointerEvents = 'none'
 
    return {marker, line, title, dirPointer}
 }
 
-const styleMarkerView = function (markObj, pin) {
+const styleMarkerView = function (markObj, trg) {
    const {marker, title, dirPointer} = markObj
-   const axisStyle = propMap[pin._axis]
-   const dir = pin._direction === BACKWARD ? 1 : 0
+   const axisStyle = propMap[trg._axis]
+   const dir = trg._direction === BACKWARD ? 1 : 0
    marker.style[axisStyle.sides[dir]] = '0px'
    title.style[axisStyle.sides[dir]] = '15px'
-  // title.style.width = '100px'
    title.style.textAlign = axisStyle.sides[dir]
    dirPointer.style[axisStyle.sides[dir]] = '60px'
    return markObj.marker
 }
 
 
-const styleMarkerScene = function (markObj, pin) {
+const styleMarkerScene = function (markObj, trg) {
    const {marker, line, title, dirPointer} = markObj
-   const axisStyle = propMap[pin._axis]
-   const dir = pin._direction === BACKWARD ? 1 : 0
+   const axisStyle = propMap[trg._axis]
+   const dir = trg._direction === BACKWARD ? 1 : 0
    const dirInv = dir ? 0 : 1
    marker.style[axisStyle.sides[dir]] = '40px'
-   line.style.background = pin._debugColor
+   line.style.background = trg._debugColor
    line.style[axisStyle.size[1]] = '40px'
    title.style[axisStyle.sides[dir]] = '0px'
-  // title.style.width = '100px'
    title.style.textAlign = axisStyle.sides[dir]
    dirPointer.innerHTML = axisStyle.arrowChar[dirInv]
    return markObj.marker
@@ -115,10 +113,12 @@ const px = function (value) {
 }
 
 
-const colorPin = function (pin) {
-   pin._debugColor = pin._debugColor ? pin._debugColor : colors[colorIndex++]
-   colorIndex = colorIndex === colors.length ? 0 : colorIndex
-   return pin
+const colorMarker = function (trg) {
+   trg._debugColor = trg._debugColor ? trg._debugColor : colors[colorIndex++]
+   colorIndex = (colorIndex === colors.length)
+      ? 0
+      : colorIndex
+   return trg
 }
 
 export const contextDebug = function (viewElement) {
@@ -136,40 +136,40 @@ export const contextDebug = function (viewElement) {
 
    document.body.appendChild(debugContainer)
    return {
-      addPins(pins){
-         pins.forEach(function (pin) {
-            colorPin(pin)
-            const markerView = createMarker('view', pin)
-            const markerScene = createMarker('scene', pin)
-            pin.__debugViewMarker = styleMarkerView(markerView, pin)
-            pin.__debugSceneMarker = styleMarkerScene(markerScene, pin)
-            debugContainer.appendChild(pin.__debugViewMarker)
-            debugContainer.appendChild(pin.__debugSceneMarker)
+      addTriggers(triggers){
+         triggers.forEach(function (trg) {
+            colorMarker(trg)
+            const markerView = createMarker('view', trg)
+            const markerScene = createMarker('scene', trg)
+            trg.__debugViewMarker = styleMarkerView(markerView, trg)
+            trg.__debugSceneMarker = styleMarkerScene(markerScene, trg)
+            debugContainer.appendChild(trg.__debugViewMarker)
+            debugContainer.appendChild(trg.__debugSceneMarker)
 
 
             if (!isViewWindow) {
-               pin.__debugViewMarker.style.position = 'absolute'
-               pin.__debugSceneMarker.style.position = 'absolute'
+               trg.__debugViewMarker.style.position = 'absolute'
+               trg.__debugSceneMarker.style.position = 'absolute'
             }
          })
       },
-      update(pins){
-         pins.forEach(function (pin) {
-            const axisStyle = propMap[pin._axis]
-            const nT = pin._pT
+      update(triggers){
+         triggers.forEach(function (trg) {
+            const axisStyle = propMap[trg._axis]
+            const nT = trg._pT
             if (isViewWindow) {
                const viewSize = contextDom.view[axisStyle.size[0]]()
                const viewPos = contextDom.view[axisStyle.orientation]()
-               const positionView = targetPoint(0, viewSize, pin._view.position, pin._view.offset)
-               pin.__debugViewMarker.style.transform = translate(axisStyle.translate[0], positionView)
-               pin.__debugSceneMarker.style.transform = translate(axisStyle.translate[0], nT[1] - viewPos)
+               const positionView = targetPoint(0, viewSize, trg._view.position, trg._view.offset)
+               trg.__debugViewMarker.style.transform = translate(axisStyle.translate[0], positionView)
+               trg.__debugSceneMarker.style.transform = translate(axisStyle.translate[0], nT[1] - viewPos)
             } else {
                const viewSize = contextDom.view[axisStyle.size[0]]()
                const viewPos = contextDom.view[axisStyle.orientation]()
-               const positionView = targetPoint(0, viewSize, pin._view.position, pin._view.offset)
+               const positionView = targetPoint(0, viewSize, trg._view.position, trg._view.offset)
 
-               pin.__debugViewMarker.style[axisStyle.orientation] = `${positionView}px`
-               pin.__debugSceneMarker.style[axisStyle.orientation] = `${nT[1] - viewPos}px`
+               trg.__debugViewMarker.style[axisStyle.orientation] = `${positionView}px`
+               trg.__debugSceneMarker.style[axisStyle.orientation] = `${nT[1] - viewPos}px`
 
                debugContainer.style.top = px(viewElement.getBoundingClientRect().top)
                debugContainer.style.left = px(viewElement.getBoundingClientRect().left)
@@ -178,7 +178,7 @@ export const contextDebug = function (viewElement) {
             }
          })
       },
-      clearPins(){
+      clearTriggers(){
          while (debugContainer.firstChild) {
             debugContainer.removeChild(debugContainer.firstChild)
          }
@@ -187,11 +187,11 @@ export const contextDebug = function (viewElement) {
       clearAll(){
          document.body.removeChild(debugContainer)
       },
-      cleanUp(pins){
-         if(!pins) return
-         pins.forEach(function(pin){
-            if(!pin._debug && pin.__debugViewMarker instanceof HTMLElement){
-              debugContainer.removeChild(pin.__debugViewMarker)
+      cleanUp(triggers){
+         if(!triggers) return
+         triggers.forEach(function(trg){
+            if(!trg._debug && trg.__debugViewMarker instanceof HTMLElement){
+              debugContainer.removeChild(trg.__debugViewMarker)
             }
          })
       }
