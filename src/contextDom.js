@@ -29,7 +29,7 @@ export default function (viewElement, sceneElement, scout) {
       }
    }
    const updateHandler = function () {
-      scout.update()
+      window.requestAnimationFrame(scout.update)
    }
 
    const startUpdate = function (userResizeUpdateFn, userScrollUpdateFn) {

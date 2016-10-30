@@ -5,6 +5,9 @@ import contextDom from './contextDom'
 
 const defaultOptions = {
    runInitialUpdate: true,
+   autoUpdate: true,
+   throttleResize: null,
+   throttleScroll: null,
    context: (typeof window !== 'undefined') ? contextDom : Function.prototype
 }
 

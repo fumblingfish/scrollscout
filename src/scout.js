@@ -70,6 +70,7 @@ export default function scout(obsvr, view, scene, optns) {
       shouldRefreshBeforeUpdate = true,
       cachedUpdate,
       debugging = false,
+      running = false,
       contextDebugger;
 
    const triggerChange = function () {
@@ -102,7 +103,7 @@ export default function scout(obsvr, view, scene, optns) {
    }
 
    const addTrigger = function (trgName) {
-      if(!_.isString(trgName)){
+      if (!_.isString(trgName)) {
          console.warn(`Trigger name must be a string. see addTrigger`)
          return false
       }
@@ -203,7 +204,7 @@ export default function scout(obsvr, view, scene, optns) {
          const nextStatePair = axisPair(trg._axis, nextState.view, nextState.scene)
          const nT = targetPointPair(nextStatePair[0], nextStatePair[1], trg)
          const notify = predicate(pT[0], pT[1], nT[0], nT[1])
-         return {trigger:trg, pT, nT, notify}
+         return {trigger: trg, pT, nT, notify}
       })
 
       _.forEach(resolvedTriggers, (trgObj) => {
@@ -231,12 +232,27 @@ export default function scout(obsvr, view, scene, optns) {
       updateScout()
    }
 
-   const start = function (resizeUpdateFn, scrollUpdateFn) {
-      contextEnv.start(resizeUpdateFn, scrollUpdateFn)
+   const start = function () {
+      if (running) return
+      const updateResize = _.isNumber(options.throttleResize)
+         ? (update) => _.throttle(update, options.throttleResize)
+         : null
+      const updateScroll = _.isNumber(options.throttleScroll)
+         ? (update) => _.throttle(update, options.throttleScroll)
+         : null
+      contextEnv.start(updateResize, updateScroll)
+      running = true
    }
 
    const stop = function () {
       contextEnv.stop()
+      running = false
+   }
+
+   if (options.autoUpdate) {
+      if (typeof window !== 'undefined' && window.requestAnimationFrame) {
+         window.requestAnimationFrame(start)
+      }
    }
 
    if (options.runInitialUpdate) {
@@ -244,7 +260,6 @@ export default function scout(obsvr, view, scene, optns) {
          window.requestAnimationFrame(updateScout)
       }
    }
-
 
    var _scout = {
       // public
