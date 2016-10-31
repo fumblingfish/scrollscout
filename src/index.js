@@ -11,8 +11,14 @@ const defaultOptions = {
    context: (typeof window !== 'undefined') ? contextDom : Function.prototype
 }
 
+const windowOrElement = (view) => view === window || view instanceof HTMLElement
+
+
 const create = function (scene, view, options) {
-   view = (_.isNil(view) && (typeof window !== 'undefined')) ? window : view
+   if(typeof window !== 'undefined' && !windowOrElement(view)){
+      options = view
+      view = window
+   }
    const optns = _.assign(defaultOptions, options)
    return scout(createObserver(), view, scene, optns)
 }
