@@ -281,7 +281,10 @@ export default function scout(obsvr, view, scene, optns) {
       _notifyListeners: notifyListeners,
    }
 
-   _scout.on = scoutEvents(_scout, createObserver())
+   _scout = {
+      ..._scout,
+      ...scoutEvents(_scout, createObserver())
+   }
 
    contextEnv = options.context(view, scene, _scout)
 
