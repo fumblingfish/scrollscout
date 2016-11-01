@@ -3,12 +3,14 @@ Observe when elements enter or leave viewport.
 Create custom scroll triggers, fixed or relative to element and viewport height.
 Suitable for responsive/fluid or static layouts.
 
+[Demo](https://fumblingfish.github.io/scrollscout/)
+
 ### Install
 ```
 npm install scrollscout
 ```
 
-##### Setup
+### Setup
 With ES6
 ```javascript
 import scrollscout from 'scrollscout'
