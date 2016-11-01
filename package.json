@@ -1,6 +1,6 @@
 {
   "name": "scrollscout",
-  "version": "0.2.4",
+  "version": "1.0.0",
   "description": "Observing elements entering/leaving viewport",
   "keywords": [
     "scroll",
